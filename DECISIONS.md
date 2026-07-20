@@ -1,37 +1,81 @@
 # Architecture Decisions
 
-## ADR-001: Backend-owned external API calls
+## ADR-001: Fixed monorepo stack
 
-Decision:
-OpenRouteService requests will be made by Django, not React.
+**Status:** Accepted
 
-Reason:
-The API key must not be exposed in browser source.
+**Decision:** Use Django + Django REST Framework in `backend/` and React + Vite + TypeScript + Tailwind CSS in `frontend/`. Use pytest for backend tests and Vitest/React Testing Library for frontend tests.
 
-## ADR-002: Conservative cycle bucket
+**Reason:** This is the assessment’s required stack and provides clear backend/frontend deployment boundaries.
 
-Decision:
-Use `70 - current_cycle_used` as available cycle time.
+## ADR-002: Backend-owned routing and geocoding
 
-Reason:
-The assessment does not provide eight days of historical duty totals,
-so exact rolling recapture is impossible.
+**Status:** Accepted
 
-## ADR-003: SVG log overlay
+**Decision:** Django is the only component allowed to call OpenRouteService. React calls the Django API and receives provider-neutral route data.
 
-Decision:
-Use the supplied blank daily-log image as the SVG background and draw
-generated lines and text on top.
+**Reason:** The OpenRouteService API key must never be exposed in browser code, logs, or responses.
 
-Reason:
-It preserves the requested paper-log appearance while allowing accurate,
-responsive positioning.
+## ADR-003: Pure deterministic scheduling core
 
-## ADR-004: One active owner for HOS scheduling
+**Status:** Accepted
 
-Decision:
-Only one agent or branch may modify the HOS scheduler at a time.
+**Decision:** HOS scheduling, route progress, and daily-log construction live in pure/testable backend service modules, separate from serializers, views, HTTP clients, and persistence.
 
-Reason:
-The scheduler is the highest-risk part of the project and parallel edits
-would create inconsistent rule behavior.
+**Reason:** HOS edge cases are the highest-risk requirement. Deterministic services allow focused unit testing without network or Django request state.
+
+## ADR-004: Conservative cycle bucket
+
+**Status:** Accepted
+
+**Decision:** Model available cycle time as `70 - current_cycle_used_hours`. Count Driving and On Duty, Not Driving against the bucket. Insert a 34-hour restart when the bucket prevents further required driving.
+
+**Reason:** The assessment omits the preceding eight individual daily totals, so exact rolling recapture cannot be calculated. The UI and API must disclose this limitation.
+
+## ADR-005: Simplified sleeper and restart statuses
+
+**Status:** Accepted
+
+**Decision:** Use a 10-hour Sleeper Berth event for overnight resets and an Off Duty event for the modeled 34-hour restart. Do not implement split-sleeper or team-driver pairing.
+
+**Reason:** This matches the assessment assumptions while keeping the scheduler auditable and bounded.
+
+## ADR-006: Single trip timezone
+
+**Status:** Accepted
+
+**Decision:** Use the trip-start timezone for the entire schedule and every generated log, including routes crossing timezones.
+
+**Reason:** A consistent time base is required for reproducible calendar splitting. It approximates the FMCSA home-terminal time-base requirement because the assessment does not collect a home terminal.
+
+## ADR-007: Route progress and generated-stop labels
+
+**Status:** Accepted
+
+**Decision:** Retain route geometry, segments, steps, distance, and duration. Map event progress to route coordinates using step detail when available and distance interpolation otherwise. Label generated fuel locations as planned points along the route unless a real POI source confirms a truck stop.
+
+**Reason:** Scheduled stops need defensible map positions without inventing businesses or facilities.
+
+## ADR-008: SVG overlay on the supplied log image
+
+**Status:** Accepted
+
+**Decision:** Use `frontend/public/assets/blank-paper-log.png` as an SVG `<image>` background. Store overlay coordinates centrally and draw a continuous 24-hour polyline plus field text and remarks.
+
+**Reason:** This preserves the supplied paper-log design while supporting scalable and testable time-to-position calculations.
+
+## ADR-009: Stateless initial trip planning
+
+**Status:** Accepted
+
+**Decision:** The initial `POST /api/trips/plan/` implementation will calculate and return a plan without requiring a database-backed trip model. A response UUID may identify the calculation.
+
+**Reason:** Persistence is not required by the assessment and would consume time without improving the core demonstration.
+
+## ADR-010: Canonical reference paths
+
+**Status:** Accepted
+
+**Decision:** Normalize supplied assets to the filenames used by the master specification: `fmcsa-hos-driver-guide.pdf`, `fmcsa-toc.png`, and `blank-paper-log.png`.
+
+**Reason:** Stable canonical paths prevent documentation/code drift and asset lookup failures.
