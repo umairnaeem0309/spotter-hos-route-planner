@@ -10,16 +10,16 @@ Only mark an item complete after its acceptance checks pass.
 - [x] Normalize required reference filenames
 - [x] Document scope, architecture, HOS rules, security, and environment variables
 - [x] Update status, decisions, handoff, README, and agent instructions
-- [ ] Review, commit, and push the documentation foundation
+- [x] Review, commit, and push the documentation foundation
 
 ## Phase 1 — Backend foundation
 
-- [ ] Create the Django project and `apps/trips/` package under `backend/`
-- [ ] Add Django REST Framework, pytest, pytest-django, and django-cors-headers
-- [ ] Configure environment-based development and production settings
-- [ ] Configure CORS from `CORS_ALLOWED_ORIGINS` and `FRONTEND_URL`
-- [ ] Add `GET /api/health/`
-- [ ] Add health/configuration tests and run pytest
+- [x] Create the Django project and `apps/trips/` package under `backend/`
+- [x] Add Django REST Framework, pytest, pytest-django, and django-cors-headers
+- [x] Configure environment-based development and production settings
+- [x] Configure CORS from `CORS_ALLOWED_ORIGINS` and `FRONTEND_URL`
+- [x] Add `GET /api/health/`
+- [x] Add health/configuration tests and run pytest
 
 ## Phase 2 — Routing provider foundation
 
