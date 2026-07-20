@@ -1,76 +1,83 @@
 # Task Tracker
 
-## Phase 0 — Repository setup
+Only mark an item complete after its acceptance checks pass.
 
-- [x] Create GitHub repository
-- [x] Create backend and frontend folders
-- [x] Add reference files
-- [x] Add agent-continuity documents
-- [ ] Create initial commit
-- [ ] Push initial repository structure
+## Phase 0 — Repository and documentation foundation
+
+- [x] Capture Git status, branch, and recent history
+- [x] Read the master specification and continuity documents
+- [x] Inspect the assessment DOCX, FMCSA PDF/TOC, and blank log asset
+- [x] Normalize required reference filenames
+- [x] Document scope, architecture, HOS rules, security, and environment variables
+- [x] Update status, decisions, handoff, README, and agent instructions
+- [ ] Review, commit, and push the documentation foundation
 
 ## Phase 1 — Backend foundation
 
-- [ ] Create Django project
-- [ ] Install Django REST Framework
-- [ ] Configure environment variables
-- [ ] Configure CORS
-- [ ] Add GET /api/health/
-- [ ] Add backend health test
-- [ ] Add OpenRouteService client foundation
+- [ ] Create the Django project and `apps/trips/` package under `backend/`
+- [ ] Add Django REST Framework, pytest, pytest-django, and django-cors-headers
+- [ ] Configure environment-based development and production settings
+- [ ] Configure CORS from `CORS_ALLOWED_ORIGINS` and `FRONTEND_URL`
+- [ ] Add `GET /api/health/`
+- [ ] Add health/configuration tests and run pytest
 
-## Phase 2 — HOS engine
+## Phase 2 — Routing provider foundation
 
-- [ ] Define timeline event types
-- [ ] Implement 11-hour limit
-- [ ] Implement 14-hour window
-- [ ] Implement 30-minute break
-- [ ] Implement 70-hour cycle bucket
-- [ ] Implement 10-hour sleeper reset
-- [ ] Implement 34-hour restart
-- [ ] Implement fuel stops
-- [ ] Add HOS unit tests
+- [ ] Define typed provider errors and a consistent safe API error schema
+- [ ] Implement backend-only OpenRouteService geocoding/reverse-geocoding clients
+- [ ] Implement `driving-hgv` routing through current → pickup → drop-off
+- [ ] Add timeouts, missing-key, invalid-address, no-route, and rate-limit handling
+- [ ] Add mocked provider tests; never require a live API key in automated tests
 
-## Phase 3 — Trip API
+## Phase 3 — Pure HOS engine
 
-- [ ] Add trip request serializer
-- [ ] Add address geocoding
-- [ ] Add current-to-pickup-to-dropoff routing
-- [ ] Build trip timeline
-- [ ] Add POST /api/trips/plan/
-- [ ] Add API integration tests
+- [ ] Define timeline event and scheduler-state types
+- [ ] Implement pickup/drop-off events and route consumption
+- [ ] Implement the 11-hour driving limit and 10-hour reset
+- [ ] Implement the elapsed 14-hour driving window
+- [ ] Implement the cumulative 8-hour/30-minute break rule
+- [ ] Implement the conservative 70-hour cycle bucket and 34-hour restart
+- [ ] Implement 900-mile fuel planning and qualifying-break behavior
+- [ ] Add unit tests for every required edge case in the master specification
 
-## Phase 4 — Daily logs
+## Phase 4 — Trip API and route progress
 
-- [ ] Split timeline at midnight
-- [ ] Ensure each day totals 24 hours
-- [ ] Calculate daily driving miles
-- [ ] Build daily-log response model
-- [ ] Create SVG overlay
-- [ ] Align overlay with supplied template
-- [ ] Add print view
+- [ ] Add request serializer and field-level validation
+- [ ] Map scheduled progress to approximate route coordinates
+- [ ] Add safe reverse-geocode fallback labels
+- [ ] Implement `POST /api/trips/plan/` response contract
+- [ ] Add mocked API integration tests and distance-tolerance tests
 
-## Phase 5 — Frontend
+## Phase 5 — Daily-log backend
 
-- [ ] Create React Vite TypeScript app
-- [ ] Create trip form
-- [ ] Create result summary
-- [ ] Create MapLibre map
-- [ ] Create event timeline
-- [ ] Create route instructions
-- [ ] Create daily-log viewer
-- [ ] Add loading and error states
-- [ ] Add responsive styling
-- [ ] Add frontend tests
+- [ ] Split events at midnight using the trip-start timezone
+- [ ] Fill gaps with Off Duty and enforce exactly 1,440 minutes per day
+- [ ] Calculate daily status totals, driving miles, remarks, and modeled recap
+- [ ] Add daily-log tests for gaps, overlaps, cross-midnight events, and totals
 
-## Phase 6 — Delivery
+## Phase 6 — Frontend foundation and features
 
-- [ ] Run backend tests
-- [ ] Run frontend tests
-- [ ] Run frontend production build
-- [ ] Deploy backend
-- [ ] Deploy frontend
-- [ ] Update README
-- [ ] Add screenshots
-- [ ] Record Loom
-- [ ] Submit links
+- [ ] Create the React/Vite/TypeScript/Tailwind application under `frontend/`
+- [ ] Add strict API types and a stale-request-safe client
+- [ ] Build the trip form, validation, empty/loading/error states, and sample trip
+- [ ] Build summary cards, MapLibre/OpenFreeMap route map, markers, and legend
+- [ ] Build timeline, stops, assumptions, warnings, and instructions UI
+- [ ] Add accessible, responsive behavior and frontend tests
+
+## Phase 7 — Daily-log UI
+
+- [ ] Create centralized template coordinate configuration
+- [ ] Overlay a continuous SVG status graph on `blank-paper-log.png`
+- [ ] Render fields, status totals, remarks, and demo metadata disclosure
+- [ ] Add multi-log navigation, development calibration mode, and print CSS
+- [ ] Add position-calculation and navigation tests
+
+## Phase 8 — Quality and delivery
+
+- [ ] Run all backend tests
+- [ ] Run frontend tests, type checking, linting, and production build
+- [ ] Complete manual acceptance trips A–D
+- [ ] Verify no secret appears in tracked files or browser code
+- [ ] Add deployment configuration and deploy backend/frontend
+- [ ] Add screenshots, final links, test cases, and Loom script
+- [ ] Record a 3–5 minute Loom walkthrough
