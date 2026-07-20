@@ -2,7 +2,7 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/trip-api` (Phase 4, stacked on the Phase 1-3 branches)
+Branch: `feature/daily-logs` (Phase 5, stacked on the Phase 1-4 branches)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -34,7 +34,13 @@ Baseline commit: `6818803`
   - `services/trip_planner.py` (`build_trip_plan` orchestration).
   - `api/views.py` + `urls.py`: `POST /api/trips/plan/`.
   - `tests/test_api.py` + `tests/test_route_progress.py`.
-- Verified dev/deploy checks and ran the full suite (75 passed).
+- Phase 5 — daily-log backend:
+  - `services/daily_log_builder.py`: midnight splitting, Off-Duty gap fill to
+    exactly 1,440 min/day, per-day totals/miles/remarks/recap, demo metadata.
+  - Wired into `build_trip_plan` `daily_logs`.
+  - `tests/test_daily_logs.py` (10 tests).
+- Verified dev/deploy checks and ran the full suite (85 passed). Backend
+  (Phases 1-5) is functionally complete.
 
 ## Files changed
 
@@ -91,15 +97,14 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": implement Phase 5 — the daily-log
-backend (`services/daily_log_builder.py`): split the timeline by calendar day
-in the trip-start tz, fill Off-Duty gaps to exactly 1,440 minutes/day, compute
-per-day status totals, driving miles, remarks, and modeled recap; wire into
-`build_trip_plan` `daily_logs`. Add `tests/test_daily_logs.py`.
+See `PROJECT_STATUS.md` "Exact next task": begin Phase 6 — the React frontend
+(Vite + TS + Tailwind) under `frontend/`: typed API client (stale-safe),
+trip form with validation and states, summary cards, MapLibre/OpenFreeMap map
+with markers/legend, timeline, and route instructions. Daily-log SVG overlay is
+Phase 7.
 
 ## Acceptance criteria for next task
 
-- Every generated day totals exactly 1,440 minutes, no gaps/overlaps.
-- Cross-midnight events split correctly; per-day driving miles are prorated.
-- Daily logs appear in the trip-plan response; `number_of_log_days` matches.
-- All tests pass.
+- `npm run dev` serves the SPA; a plan renders summary/map/timeline/instructions.
+- Stale-request protection via AbortController; canonical error handling.
+- Type-check clean; Vitest tests (validation, success, API error) pass.

@@ -1,14 +1,14 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/trip-api` (Phase 4), stacked on the Phase 1-3
+Current branch: `feature/daily-logs` (Phase 5), stacked on the Phase 1-4
 branches, all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 4 — trip API and route progress (complete). Ready to begin Phase 5
-(daily-log backend).
+Phase 5 — daily-log backend (complete). The backend (Phases 1-5) is
+functionally complete. Ready to begin Phase 6 (frontend foundation/features).
 
 ## Completed
 
@@ -57,13 +57,24 @@ Phase 4 — trip API and route progress (complete). Ready to begin Phase 5
   - `tests/test_api.py` (integration, mocked providers) and
     `tests/test_route_progress.py`.
 
+- Phase 5 daily-log backend (`services/daily_log_builder.py`):
+  - Splits the timeline at midnight in the trip-start tz; prorates driving
+    miles across split segments; fills Off-Duty gaps to exactly 1,440
+    minutes/day with no gaps/overlaps.
+  - Per-day status totals, driving miles, remarks (time/location/activity),
+    modeled 70-hour recap, and demo metadata (flagged).
+  - Wired into `build_trip_plan` `daily_logs`; `number_of_log_days` from the
+    builder. `tests/test_daily_logs.py` (10 tests).
+
 ## In progress
 
-- None. Phase 4 acceptance met; awaiting Phase 5.
+- None. Phase 5 acceptance met; backend complete; awaiting Phase 6.
 
 ## Not started
 
-- Daily-log backend (Phase 5)
+- React application and features (Phase 6)
+- Daily-log UI / SVG overlay (Phase 7)
+- QA, deployment, screenshots, Loom (Phase 8)
 - Daily-log backend (Phase 5)
 - React application and features (Phases 6–7)
 - Automated frontend tests, production builds, deployment, and Loom (Phase 8)
@@ -75,8 +86,8 @@ Phase 4 — trip API and route progress (complete). Ready to begin Phase 5
   issues, no warnings.
 - Production settings raise on missing/placeholder secret and empty
   `ALLOWED_HOSTS`.
-- `pytest`: 75 passed (health, config safety, error schema, provider layer,
-  full HOS engine, route progress, and the trip-plan API integration tests).
+- `pytest`: 85 passed (health, config safety, error schema, provider layer,
+  full HOS engine, route progress, trip-plan API, and daily-log builder).
 - Live boot: dev server started; `GET /api/health/` returned HTTP 200 and
   `{"status": "ok"}` with security headers.
 - Secret scan: no `.env` or credentials committed; `.venv/`, `db.sqlite3`,
@@ -92,22 +103,27 @@ Phase 4 — trip API and route progress (complete). Ready to begin Phase 5
 
 ## Exact next task
 
-Begin Phase 5 — daily-log backend (`services/daily_log_builder.py`):
+Begin Phase 6 — React frontend foundation and core features (`frontend/`):
 
-- Split the immutable timeline into calendar days in the trip-start timezone;
-  split any event crossing midnight into per-day segments (preserve exact
-  minutes; prorate driving miles across split driving segments).
-- For each day: fill uncovered time with Off Duty so the four duty-status
-  totals sum to exactly 1,440 minutes with no gaps/overlaps.
-- Compute per-day: date, from/to labels, total driving miles (that day only),
-  the four status totals, remarks (time + nearest location + activity) at each
-  relevant status change, and a modeled 70-hour recap.
-- Add demo metadata (driver/carrier/office/vehicle/shipping) flagged as demo.
-- Wire the result into `build_trip_plan` `daily_logs` and set
-  `summary.number_of_log_days` from the builder output.
-- Add `tests/test_daily_logs.py`: cross-midnight splits, gap/overlap filling,
-  exactly-1,440-minute totals, per-day miles, and remark generation.
+- Scaffold Vite + React + TypeScript + Tailwind under `frontend/` (feature-based
+  structure per `docs/ARCHITECTURE.md`). Add `.env.example` with
+  `VITE_API_BASE_URL`.
+- `src/types/trip.ts`: strict TypeScript types mirroring the Django response
+  contract (summary, route, timeline, daily_logs, assumptions, warnings).
+- `src/api/client.ts` + `trips.ts`: fetch wrapper with `AbortController`
+  (stale-request-safe) and typed error handling against the canonical error
+  schema.
+- `features/trip-form`: inputs (current/pickup/dropoff, cycle used, optional
+  trip start), validation, empty/loading/error states, "Load sample trip".
+- Summary metric cards, MapLibre + OpenFreeMap route map with markers/legend,
+  timeline cards (with reason explanations), stops list, and route-instructions
+  accordion. (Daily-log SVG is Phase 7.)
+- Vitest + React Testing Library setup; tests for form validation, success
+  render, and API-error render.
 
-Acceptance: every generated day totals exactly 1,440 minutes with no gaps or
-overlaps, cross-midnight events split correctly, and the daily logs appear in
-the trip-plan response. All tests pass.
+Notes: the map basemap style is `https://tiles.openfreemap.org/styles/liberty`;
+retain attribution. Do not call ORS from the browser. Navy/teal/white/neutral
+palette; responsive; accessible.
+
+Acceptance: `npm run dev` serves the SPA; a mocked/live plan renders summary,
+map, timeline, and instructions; type-check and the frontend tests pass.

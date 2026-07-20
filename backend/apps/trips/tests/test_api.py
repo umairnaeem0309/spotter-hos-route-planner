@@ -163,9 +163,13 @@ def test_route_geometry_and_instructions(client, valid_payload):
     assert len(route["instructions"]) >= 1
 
 
-def test_daily_logs_empty_until_phase5(client, valid_payload):
+def test_daily_logs_are_populated(client, valid_payload):
     body = _post(client, valid_payload).json()
-    assert body["daily_logs"] == []
+    logs = body["daily_logs"]
+    assert len(logs) == body["summary"]["number_of_log_days"] >= 1
+    for log in logs:
+        assert sum(log["totals"].values()) == 1440
+        assert log["metadata"]["is_demo"] is True
 
 
 def test_trip_start_defaults_when_omitted(client, valid_payload):
