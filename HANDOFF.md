@@ -2,8 +2,7 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/hos-engine` (Phase 3, stacked on `feature/routing-provider`
--> `feature/backend-foundation`)
+Branch: `feature/trip-api` (Phase 4, stacked on the Phase 1-3 branches)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -29,7 +28,13 @@ Baseline commit: `6818803`
   - All FMCSA rules modeled per `docs/HOS_RULES.md`; fuel prioritized over the
     standalone break so coincident stops merge.
   - `tests/test_hos_scheduler.py`: 16 tests incl. an invariant checker.
-- Verified dev/deploy checks and ran the full suite (54 passed).
+- Phase 4 — trip API and route progress:
+  - `services/route_progress.py` (legs + coordinate/label mapping).
+  - `api/serializers.py` (validation, offset-preserving trip_start).
+  - `services/trip_planner.py` (`build_trip_plan` orchestration).
+  - `api/views.py` + `urls.py`: `POST /api/trips/plan/`.
+  - `tests/test_api.py` + `tests/test_route_progress.py`.
+- Verified dev/deploy checks and ran the full suite (75 passed).
 
 ## Files changed
 
@@ -86,17 +91,15 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": implement Phase 4 — the trip API
-(`POST /api/trips/plan/`), request serializer/validation, and
-`services/route_progress.py` (Route -> DrivingLegs; map scheduled events to
-route coordinates; best-effort reverse-geocode with lat/lon fallback). Keep
-scheduling logic out of the view. `daily_logs` stays empty until Phase 5.
+See `PROJECT_STATUS.md` "Exact next task": implement Phase 5 — the daily-log
+backend (`services/daily_log_builder.py`): split the timeline by calendar day
+in the trip-start tz, fill Off-Duty gaps to exactly 1,440 minutes/day, compute
+per-day status totals, driving miles, remarks, and modeled recap; wire into
+`build_trip_plan` `daily_logs`. Add `tests/test_daily_logs.py`.
 
 ## Acceptance criteria for next task
 
-- `POST /api/trips/plan/` returns the full documented response contract for a
-  mocked geocode+route.
-- Field-level 400s for blank locations / cycle out of [0,70] / bad trip_start.
-- Provider failures render as canonical 502/503.
-- Mapped stop coordinates reconcile to the route within tolerance.
-- At least one API integration test; all tests pass without a live key.
+- Every generated day totals exactly 1,440 minutes, no gaps/overlaps.
+- Cross-midnight events split correctly; per-day driving miles are prorated.
+- Daily logs appear in the trip-plan response; `number_of_log_days` matches.
+- All tests pass.

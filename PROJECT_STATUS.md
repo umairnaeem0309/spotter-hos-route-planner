@@ -1,15 +1,14 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/hos-engine` (Phase 3), stacked on
-`feature/routing-provider` (Phase 2) / `feature/backend-foundation` (Phase 1),
-all pushed.
+Current branch: `feature/trip-api` (Phase 4), stacked on the Phase 1-3
+branches, all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 3 — pure HOS scheduling engine (complete). Ready to begin Phase 4
-(trip API and route progress).
+Phase 4 — trip API and route progress (complete). Ready to begin Phase 5
+(daily-log backend).
 
 ## Completed
 
@@ -45,13 +44,26 @@ Phase 3 — pure HOS scheduling engine (complete). Ready to begin Phase 4
   - 16 scheduler tests: every HOS_RULES.md minimum case + interactions,
     determinism, distance reconciliation, invariant checker.
 
+- Phase 4 trip API and route progress:
+  - `services/route_progress.py`: `build_driving_legs` (Route -> DrivingLegs)
+    and `apply_route_progress` (map events to route coords via cumulative
+    haversine interpolation; exact waypoint coords/labels; best-effort reverse
+    geocode with lat/lon fallback; fuel labeled as planned point).
+  - `api/serializers.py`: `TripPlanRequestSerializer` with field-level
+    validation and offset-preserving ISO-8601 `trip_start` parsing.
+  - `services/trip_planner.py`: `build_trip_plan` orchestration + assumptions
+    and warnings copy.
+  - `api/views.py` + `urls.py`: `POST /api/trips/plan/` (thin view).
+  - `tests/test_api.py` (integration, mocked providers) and
+    `tests/test_route_progress.py`.
+
 ## In progress
 
-- None. Phase 3 acceptance met; awaiting Phase 4.
+- None. Phase 4 acceptance met; awaiting Phase 5.
 
 ## Not started
 
-- Trip API and route progress (Phase 4)
+- Daily-log backend (Phase 5)
 - Daily-log backend (Phase 5)
 - React application and features (Phases 6–7)
 - Automated frontend tests, production builds, deployment, and Loom (Phase 8)
@@ -63,8 +75,8 @@ Phase 3 — pure HOS scheduling engine (complete). Ready to begin Phase 4
   issues, no warnings.
 - Production settings raise on missing/placeholder secret and empty
   `ALLOWED_HOSTS`.
-- `pytest`: 54 passed (health, config safety, error schema, provider success
-  and every failure mode, key-safe URL, and the full HOS engine suite).
+- `pytest`: 75 passed (health, config safety, error schema, provider layer,
+  full HOS engine, route progress, and the trip-plan API integration tests).
 - Live boot: dev server started; `GET /api/health/` returned HTTP 200 and
   `{"status": "ok"}` with security headers.
 - Secret scan: no `.env` or credentials committed; `.venv/`, `db.sqlite3`,
@@ -80,31 +92,22 @@ Phase 3 — pure HOS scheduling engine (complete). Ready to begin Phase 4
 
 ## Exact next task
 
-Begin Phase 4 — trip API and route progress (backend):
+Begin Phase 5 — daily-log backend (`services/daily_log_builder.py`):
 
-- `services/route_progress.py`: build the scheduler's `DrivingLeg`s from a
-  provider `Route` (segment 0 = current->pickup ending PICKUP, segment 1 =
-  pickup->drop-off ending DROPOFF; meters->miles, seconds->rounded minutes).
-  After scheduling, map each event's cumulative `meta` distance onto the route
-  LineString to an approximate `coordinate`; prefer step geometry indexes, else
-  interpolate by cumulative segment distance. Reverse-geocode stop coordinates
-  best-effort, falling back to formatted lat/lon; label generated fuel points
-  "Planned fuel stop along route".
-- `api/serializers.py`: request validation — three non-blank locations,
-  `current_cycle_used_hours` in [0, 70], optional ISO-8601 `trip_start`
-  (default to now in a chosen tz); field-level 400s.
-- `api/views.py`: `POST /api/trips/plan/` orchestrating geocode -> route ->
-  schedule -> route-progress -> response contract (trip_id, input, summary,
-  route{geometry,waypoints,instructions}, timeline, daily_logs=[] for now,
-  assumptions, warnings). Keep scheduling out of the view.
-- Tests: mocked geocoding/routing; assert the response contract, field-level
-  validation errors, provider-failure mapping (502/503), and distance
-  reconciliation of mapped coordinates within tolerance. At least one full API
-  integration test.
+- Split the immutable timeline into calendar days in the trip-start timezone;
+  split any event crossing midnight into per-day segments (preserve exact
+  minutes; prorate driving miles across split driving segments).
+- For each day: fill uncovered time with Off Duty so the four duty-status
+  totals sum to exactly 1,440 minutes with no gaps/overlaps.
+- Compute per-day: date, from/to labels, total driving miles (that day only),
+  the four status totals, remarks (time + nearest location + activity) at each
+  relevant status change, and a modeled 70-hour recap.
+- Add demo metadata (driver/carrier/office/vehicle/shipping) flagged as demo.
+- Wire the result into `build_trip_plan` `daily_logs` and set
+  `summary.number_of_log_days` from the builder output.
+- Add `tests/test_daily_logs.py`: cross-midnight splits, gap/overlap filling,
+  exactly-1,440-minute totals, per-day miles, and remark generation.
 
-Note: `daily_logs` stays empty until Phase 5. Trip start timezone handling and
-the assumptions/warnings copy should reflect `docs/HOS_RULES.md`.
-
-Acceptance: `POST /api/trips/plan/` returns the full contract for a mocked
-route, validation and provider errors use the canonical schema, and all tests
-pass without a live key.
+Acceptance: every generated day totals exactly 1,440 minutes with no gaps or
+overlaps, cross-midnight events split correctly, and the daily logs appear in
+the trip-plan response. All tests pass.

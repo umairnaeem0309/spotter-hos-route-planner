@@ -42,11 +42,11 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 4 — Trip API and route progress
 
-- [ ] Add request serializer and field-level validation
-- [ ] Map scheduled progress to approximate route coordinates
-- [ ] Add safe reverse-geocode fallback labels
-- [ ] Implement `POST /api/trips/plan/` response contract
-- [ ] Add mocked API integration tests and distance-tolerance tests
+- [x] Add request serializer and field-level validation
+- [x] Map scheduled progress to approximate route coordinates
+- [x] Add safe reverse-geocode fallback labels
+- [x] Implement `POST /api/trips/plan/` response contract
+- [x] Add mocked API integration tests and distance-tolerance tests
 
 ## Phase 5 — Daily-log backend
 
