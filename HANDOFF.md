@@ -1,85 +1,92 @@
 # Latest Handoff
 
-Date: 2026-07-20
-Agent: Codex
-Branch: `setup/project-foundation`
-Baseline commit: `89eea07`
+Date: 2026-07-21
+Agent: Claude (Opus 4.8)
+Branch: `feature/backend-foundation`
+Baseline commit: `6818803`
 
 ## Work completed this session
 
-- Validated Git status, branch, and recent history.
-- Read the complete master specification and repository continuity files.
-- Inspected all supplied references; extracted the assessment text and visually reviewed relevant FMCSA rule/log pages and PNG assets.
-- Renamed misnamed reference assets to their required canonical paths without changing contents.
-- Completed the repository foundation documents, architecture plan, HOS requirements summary, README, ignore rules, and environment template.
-- Did not create Django/React apps or implement routing/HOS calculations.
+- Read the full specification and all continuity documents.
+- Implemented the Phase 1 Django backend foundation under `backend/`.
+- Created a `config/` project package with split settings
+  (`base`/`development`/`production`/`test`) loaded from the environment.
+- Created the `apps/trips/` application with an `api/` layer.
+- Added a canonical safe API error schema + DRF exception handler
+  (`apps/trips/api/exceptions.py`).
+- Implemented `GET /api/health/`.
+- Added dependencies and `pytest.ini`; created a Python venv at
+  `backend/.venv` (git-ignored) and installed requirements.
+- Added health and configuration-safety tests.
+- Verified dev/deploy system checks, ran pytest, and booted the dev server to
+  confirm the live health response.
 
 ## Files changed
 
-- `AGENTS.md`
-- `PROJECT_CONTEXT.md`
-- `PROJECT_STATUS.md`
-- `TASKS.md`
-- `DECISIONS.md`
-- `HANDOFF.md`
-- `README.md`
-- `.gitignore`
-- `.env.example`
-- `docs/ARCHITECTURE.md` (new)
-- `docs/HOS_RULES.md` (new)
-- Canonical reference filename changes under `docs/references/` and `frontend/public/assets/`
-- `docs/MASTER_IMPLEMENTATION_SPEC.md` remains user-provided and was untracked at the session baseline
+- `backend/requirements.txt` (new)
+- `backend/manage.py` (new)
+- `backend/pytest.ini` (new)
+- `backend/.env.example` (new)
+- `backend/config/__init__.py`, `settings/{__init__,base,development,production,test}.py`,
+  `urls.py`, `wsgi.py`, `asgi.py` (new)
+- `backend/apps/__init__.py` (new)
+- `backend/apps/trips/{__init__,apps}.py` (new)
+- `backend/apps/trips/api/{__init__,exceptions,views,urls}.py` (new)
+- `backend/apps/trips/tests/{__init__,test_health,test_settings}.py` (new)
+- `PROJECT_STATUS.md`, `TASKS.md`, `HANDOFF.md` (updated)
 
 ## Commands and checks run
 
-- `git status`
-- `git branch --show-current`
-- `git log --oneline -5`
-- Repository file and reference existence scans
-- DOCX structural text extraction
-- PDF metadata/text extraction and selected-page rendering
-- PNG visual inspection, dimensions, hashes, and duplicate comparison
-- Documentation link/path checks and secret-ignore checks
-- Final `git diff --check` and `git status`
+- `python -m venv .venv` and `pip install -r requirements.txt`
+- `python manage.py check` (development) -> no issues
+- `python manage.py check --deploy` (production, strong secret + hosts)
+  -> no issues, no warnings
+- `pytest -q` -> 9 passed
+- Booted `runserver`; `GET /api/health/` -> HTTP 200 `{"status": "ok"}`
 
 ## Test results
 
-- Application tests/builds: not run; no Django or React application exists yet.
-- Documentation/security checks: see final session report and `PROJECT_STATUS.md`.
-- DOCX visual rendering was unavailable because LibreOffice/`soffice` is not installed; structural inspection succeeded.
+- Backend: 9 passed (health endpoint + configuration safety).
+- Frontend: not applicable yet (no React app).
 
-## Current working behavior
+## How to run locally
 
-The repository contains a validated documentation foundation and canonical reference assets only. There is no runnable application yet.
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv/Scripts/activate    (bash: source .venv/Scripts/activate)
+pip install -r requirements.txt
+python manage.py runserver          # http://127.0.0.1:8000/api/health/
+pytest                              # run the test suite
+```
+
+`manage.py` defaults `DJANGO_SETTINGS_MODULE` to `config.settings.development`.
+Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Known blockers
 
-- `ORS_API_KEY` is not configured. This does not block backend scaffolding or mocked tests.
-- Live routing integration and manual route checks will require a valid OpenRouteService key later.
+- `ORS_API_KEY` needed for live routing/geocoding (Phase 2 live calls and
+  manual route testing). Not required for Phase 2 mocked tests.
 
 ## Environment variables required
 
-- Backend: `ORS_API_KEY`, `DJANGO_SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `FRONTEND_URL`
+- Backend: `DJANGO_SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`,
+  `CORS_ALLOWED_ORIGINS`, `FRONTEND_URL`, `ORS_API_KEY` (Phase 2+)
 - Frontend: `VITE_API_BASE_URL`
-
-See `.env.example` for safe local placeholders.
 
 ## Exact next task
 
-Create only the Django backend foundation in `backend/`:
-
-1. Initialize the Django project and `apps/trips/` package.
-2. Add Django REST Framework, django-cors-headers, pytest, and pytest-django.
-3. Load settings from environment variables with safe development defaults and strict production behavior.
-4. Add `GET /api/health/` returning `{"status": "ok"}`.
-5. Add endpoint/configuration tests and run pytest.
-
-Do not implement OpenRouteService calls, the trip endpoint, or HOS scheduling in this next task.
+See `PROJECT_STATUS.md` "Exact next task": implement the Phase 2 OpenRouteService
+geocoding/routing provider clients with typed errors, timeouts, sanitized
+logging, and mocked unit tests. Do not implement HOS scheduling or the trip
+endpoint in that task.
 
 ## Acceptance criteria for next task
 
-- Backend development server starts.
-- `GET /api/health/` returns HTTP 200 and `{"status": "ok"}`.
-- pytest verifies the health endpoint and relevant configuration behavior.
-- CORS values come from configuration, `DEBUG` is parsed safely, and production requires a non-placeholder secret.
-- No `.env`, secret, frontend API key, routing implementation, or HOS logic is committed.
+- `geocoding.py` and `routing.py` call ORS only from Django, using
+  `settings.ORS_API_KEY` and explicit timeouts.
+- Typed provider errors subclass `ApiError`; the safe handler returns 400 for
+  invalid addresses and 502/503 for upstream/no-route/rate-limit failures with
+  safe messages.
+- The API key never appears in logs or responses.
+- Mocked unit tests cover success and every failure mode; no live key needed.
