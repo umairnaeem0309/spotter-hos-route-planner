@@ -50,10 +50,10 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 5 — Daily-log backend
 
-- [ ] Split events at midnight using the trip-start timezone
-- [ ] Fill gaps with Off Duty and enforce exactly 1,440 minutes per day
-- [ ] Calculate daily status totals, driving miles, remarks, and modeled recap
-- [ ] Add daily-log tests for gaps, overlaps, cross-midnight events, and totals
+- [x] Split events at midnight using the trip-start timezone
+- [x] Fill gaps with Off Duty and enforce exactly 1,440 minutes per day
+- [x] Calculate daily status totals, driving miles, remarks, and modeled recap
+- [x] Add daily-log tests for gaps, overlaps, cross-midnight events, and totals
 
 ## Phase 6 — Frontend foundation and features
 

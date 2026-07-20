@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime, time, timedelta, timezone
 
 from apps.trips.services import geocoding, route_progress, routing
+from apps.trips.services.daily_log_builder import build_daily_logs
 from apps.trips.services.hos_scheduler import ScheduleResult, plan_trip
 from apps.trips.types import Route, TimelineEvent
 
@@ -160,7 +161,13 @@ def build_trip_plan(
         reverse_geocode_stops=reverse_geocode_stops,
     )
 
-    number_of_log_days = _count_log_days(schedule.departure_at, schedule.arrival_at)
+    daily_logs = build_daily_logs(
+        schedule.events,
+        initial_cycle_used_minutes=round(current_cycle_used_hours * 60),
+    )
+    number_of_log_days = len(daily_logs) or _count_log_days(
+        schedule.departure_at, schedule.arrival_at
+    )
 
     return {
         "trip_id": str(uuid.uuid4()),
@@ -185,7 +192,7 @@ def build_trip_plan(
         },
         "route": _route_dict(route, current.label, pickup.label, dropoff.label),
         "timeline": [_event_to_dict(e) for e in schedule.events],
-        "daily_logs": [],  # populated in Phase 5
+        "daily_logs": daily_logs,
         "assumptions": ASSUMPTIONS,
         "warnings": _build_warnings(schedule),
     }
