@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import Any
 
 from rest_framework import status
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.response import Response
 from rest_framework.views import exception_handler as drf_exception_handler
 
@@ -68,13 +68,10 @@ def safe_exception_handler(exc: Exception, context: dict[str, Any]) -> Response 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    # Prefer an explicit code from typed ApiError subclasses.
-    code = getattr(exc, "default_code", None) or "error"
-
-    if response.status_code == status.HTTP_400_BAD_REQUEST and isinstance(
-        response.data, dict
-    ):
-        # Field-level validation errors: preserve them under ``details``.
+    # DRF field-validation errors (blank locations, out-of-range cycle hours,
+    # bad ISO-8601 trip_start): preserve the field-level detail under
+    # ``details`` so the frontend can show inline messages.
+    if isinstance(exc, ValidationError):
         response.data = error_body(
             "validation_error",
             "The submitted data was invalid.",
@@ -82,6 +79,10 @@ def safe_exception_handler(exc: Exception, context: dict[str, Any]) -> Response 
         )
         return response
 
+    # Every other APIException (including typed ApiError subclasses such as
+    # address_not_found or no_route_found) keeps its own code and safe message,
+    # regardless of HTTP status.
+    code = getattr(exc, "default_code", None) or "error"
     detail = response.data.get("detail") if isinstance(response.data, dict) else None
     message = str(detail) if detail else "A request error occurred."
     response.data = error_body(code, message)

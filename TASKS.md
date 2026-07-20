@@ -23,11 +23,11 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 2 — Routing provider foundation
 
-- [ ] Define typed provider errors and a consistent safe API error schema
-- [ ] Implement backend-only OpenRouteService geocoding/reverse-geocoding clients
-- [ ] Implement `driving-hgv` routing through current → pickup → drop-off
-- [ ] Add timeouts, missing-key, invalid-address, no-route, and rate-limit handling
-- [ ] Add mocked provider tests; never require a live API key in automated tests
+- [x] Define typed provider errors and a consistent safe API error schema
+- [x] Implement backend-only OpenRouteService geocoding/reverse-geocoding clients
+- [x] Implement `driving-hgv` routing through current → pickup → drop-off
+- [x] Add timeouts, missing-key, invalid-address, no-route, and rate-limit handling
+- [x] Add mocked provider tests; never require a live API key in automated tests
 
 ## Phase 3 — Pure HOS engine
 

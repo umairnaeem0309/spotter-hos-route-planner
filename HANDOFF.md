@@ -2,24 +2,28 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/backend-foundation`
+Branch: `feature/routing-provider` (Phase 2, stacked on
+`feature/backend-foundation`)
 Baseline commit: `6818803`
 
 ## Work completed this session
 
 - Read the full specification and all continuity documents.
-- Implemented the Phase 1 Django backend foundation under `backend/`.
-- Created a `config/` project package with split settings
-  (`base`/`development`/`production`/`test`) loaded from the environment.
-- Created the `apps/trips/` application with an `api/` layer.
-- Added a canonical safe API error schema + DRF exception handler
-  (`apps/trips/api/exceptions.py`).
-- Implemented `GET /api/health/`.
-- Added dependencies and `pytest.ini`; created a Python venv at
-  `backend/.venv` (git-ignored) and installed requirements.
-- Added health and configuration-safety tests.
-- Verified dev/deploy system checks, ran pytest, and booted the dev server to
-  confirm the live health response.
+- Phase 1 — Django backend foundation under `backend/` (config package,
+  split env-driven settings, fail-safe production, CORS, safe error schema,
+  `GET /api/health/`, tests). Committed on `feature/backend-foundation`
+  (pushed).
+- Phase 2 — routing provider foundation:
+  - `apps/trips/types.py` domain types.
+  - `apps/trips/services/errors.py` typed provider errors (subclass
+    `ApiError`; 400/502/503 mapping).
+  - `apps/trips/services/ors_client.py` low-level client: settings-driven
+    timeout, transport/transient error mapping, key-safe logging.
+  - `apps/trips/services/geocoding.py` (Pelias search + reverse).
+  - `apps/trips/services/routing.py` (`driving-hgv` GeoJSON directions).
+  - Refined `api/exceptions.py` so typed 400s keep their code.
+  - Mocked provider tests + error-schema tests.
+- Verified dev/deploy checks and ran the full suite (38 passed).
 
 ## Files changed
 
