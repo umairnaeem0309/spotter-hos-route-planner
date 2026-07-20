@@ -2,8 +2,8 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/routing-provider` (Phase 2, stacked on
-`feature/backend-foundation`)
+Branch: `feature/hos-engine` (Phase 3, stacked on `feature/routing-provider`
+-> `feature/backend-foundation`)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -23,7 +23,13 @@ Baseline commit: `6818803`
   - `apps/trips/services/routing.py` (`driving-hgv` GeoJSON directions).
   - Refined `api/exceptions.py` so typed 400s keep their code.
   - Mocked provider tests + error-schema tests.
-- Verified dev/deploy checks and ran the full suite (38 passed).
+- Phase 3 — pure HOS scheduling engine:
+  - `apps/trips/services/hos_scheduler.py`: `_Planner` + `plan_trip`.
+  - `DrivingLeg` added to `types.py` (provider-agnostic scheduler input).
+  - All FMCSA rules modeled per `docs/HOS_RULES.md`; fuel prioritized over the
+    standalone break so coincident stops merge.
+  - `tests/test_hos_scheduler.py`: 16 tests incl. an invariant checker.
+- Verified dev/deploy checks and ran the full suite (54 passed).
 
 ## Files changed
 
@@ -80,17 +86,17 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": implement the Phase 2 OpenRouteService
-geocoding/routing provider clients with typed errors, timeouts, sanitized
-logging, and mocked unit tests. Do not implement HOS scheduling or the trip
-endpoint in that task.
+See `PROJECT_STATUS.md` "Exact next task": implement Phase 4 — the trip API
+(`POST /api/trips/plan/`), request serializer/validation, and
+`services/route_progress.py` (Route -> DrivingLegs; map scheduled events to
+route coordinates; best-effort reverse-geocode with lat/lon fallback). Keep
+scheduling logic out of the view. `daily_logs` stays empty until Phase 5.
 
 ## Acceptance criteria for next task
 
-- `geocoding.py` and `routing.py` call ORS only from Django, using
-  `settings.ORS_API_KEY` and explicit timeouts.
-- Typed provider errors subclass `ApiError`; the safe handler returns 400 for
-  invalid addresses and 502/503 for upstream/no-route/rate-limit failures with
-  safe messages.
-- The API key never appears in logs or responses.
-- Mocked unit tests cover success and every failure mode; no live key needed.
+- `POST /api/trips/plan/` returns the full documented response contract for a
+  mocked geocode+route.
+- Field-level 400s for blank locations / cycle out of [0,70] / bad trip_start.
+- Provider failures render as canonical 502/503.
+- Mapped stop coordinates reconcile to the route within tolerance.
+- At least one API integration test; all tests pass without a live key.
