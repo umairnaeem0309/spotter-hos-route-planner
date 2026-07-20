@@ -1,14 +1,15 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/routing-provider` (Phase 2); Phase 1 on
-`feature/backend-foundation` (pushed).
+Current branch: `feature/hos-engine` (Phase 3), stacked on
+`feature/routing-provider` (Phase 2) / `feature/backend-foundation` (Phase 1),
+all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 2 — routing provider foundation (complete). Ready to begin Phase 3
-(pure HOS engine).
+Phase 3 — pure HOS scheduling engine (complete). Ready to begin Phase 4
+(trip API and route progress).
 
 ## Completed
 
@@ -32,13 +33,24 @@ Phase 2 — routing provider foundation (complete). Ready to begin Phase 3
   - Refined the exception handler so typed 400s keep their code and only DRF
     ValidationErrors are relabeled `validation_error`.
 
+- Phase 3 pure HOS engine (`services/hos_scheduler.py`):
+  - `_Planner` state machine + `plan_trip(legs, trip_start, cycle_hours)`.
+  - Provider-agnostic input via `DrivingLeg` (added to `types.py`).
+  - 11-hour limit + 10-hour sleeper reset; 14-hour elapsed window; 8-hour /
+    30-min break; conservative 70-hour bucket + 34-hour restart; 900-mile fuel
+    (fuel prioritized over standalone break so coincident stops merge).
+  - Pickup/drop-off = 60 min On-Duty; contiguous integer-minute events with
+    machine-readable `reason_code`s and cumulative route distance in `meta`.
+  - `ScheduleResult` with summary counts (fuel/break/sleeper/restart).
+  - 16 scheduler tests: every HOS_RULES.md minimum case + interactions,
+    determinism, distance reconciliation, invariant checker.
+
 ## In progress
 
-- None. Phase 2 acceptance met; awaiting Phase 3.
+- None. Phase 3 acceptance met; awaiting Phase 4.
 
 ## Not started
 
-- HOS scheduling engine (Phase 3)
 - Trip API and route progress (Phase 4)
 - Daily-log backend (Phase 5)
 - React application and features (Phases 6–7)
@@ -51,8 +63,8 @@ Phase 2 — routing provider foundation (complete). Ready to begin Phase 3
   issues, no warnings.
 - Production settings raise on missing/placeholder secret and empty
   `ALLOWED_HOSTS`.
-- `pytest`: 38 passed (health, config safety, error schema, provider success
-  and every failure mode, key-safe URL).
+- `pytest`: 54 passed (health, config safety, error schema, provider success
+  and every failure mode, key-safe URL, and the full HOS engine suite).
 - Live boot: dev server started; `GET /api/health/` returned HTTP 200 and
   `{"status": "ok"}` with security headers.
 - Secret scan: no `.env` or credentials committed; `.venv/`, `db.sqlite3`,
@@ -68,29 +80,31 @@ Phase 2 — routing provider foundation (complete). Ready to begin Phase 3
 
 ## Exact next task
 
-Begin Phase 3 — pure HOS scheduling engine (`services/hos_scheduler.py`),
-backend only, no HTTP/ORM/wall-clock dependencies:
+Begin Phase 4 — trip API and route progress (backend):
 
-- Consume a normalized `Route`, a fixed timezone-aware trip start, and
-  `current_cycle_used_hours` to emit an ordered list of `TimelineEvent`s.
-- Implement, per `docs/HOS_RULES.md`:
-  - 11-hour driving limit (660 min) + 10-hour (600 min) sleeper reset.
-  - 14-hour elapsed driving window (wall-clock; breaks do not extend it).
-  - 30-minute break after 8 cumulative driving hours (480 min); fuel/pickup
-    >= 30 min qualifies and resets the counter.
-  - Conservative 70-hour cycle bucket (4,200 min) counting Driving +
-    On-Duty-Not-Driving; 34-hour (2,040 min) Off-Duty restart when exhausted
-    and driving remains.
-  - 900-mile fuel interval (30-min On-Duty events).
-  - 60-min pickup and 60-min drop-off, both On-Duty-Not-Driving.
-- Attach machine-readable `reason_code`s to scheduler-created stops.
-- Keep exact integer-minute precision and timezone-aware datetimes.
+- `services/route_progress.py`: build the scheduler's `DrivingLeg`s from a
+  provider `Route` (segment 0 = current->pickup ending PICKUP, segment 1 =
+  pickup->drop-off ending DROPOFF; meters->miles, seconds->rounded minutes).
+  After scheduling, map each event's cumulative `meta` distance onto the route
+  LineString to an approximate `coordinate`; prefer step geometry indexes, else
+  interpolate by cumulative segment distance. Reverse-geocode stop coordinates
+  best-effort, falling back to formatted lat/lon; label generated fuel points
+  "Planned fuel stop along route".
+- `api/serializers.py`: request validation — three non-blank locations,
+  `current_cycle_used_hours` in [0, 70], optional ISO-8601 `trip_start`
+  (default to now in a chosen tz); field-level 400s.
+- `api/views.py`: `POST /api/trips/plan/` orchestrating geocode -> route ->
+  schedule -> route-progress -> response contract (trip_id, input, summary,
+  route{geometry,waypoints,instructions}, timeline, daily_logs=[] for now,
+  assumptions, warnings). Keep scheduling out of the view.
+- Tests: mocked geocoding/routing; assert the response contract, field-level
+  validation errors, provider-failure mapping (502/503), and distance
+  reconciliation of mapped coordinates within tolerance. At least one full API
+  integration test.
 
-Add `tests/test_hos_scheduler.py` covering every case in HOS_RULES.md
-"Minimum automated cases" plus the interaction cases. Use synthetic in-memory
-`Route` fixtures (no network). Route-progress interpolation and reverse-geocode
-labeling of stops belong to Phase 4; the scheduler may emit coordinate=None or
-raw route coordinates for now.
+Note: `daily_logs` stays empty until Phase 5. Trip start timezone handling and
+the assumptions/warnings copy should reflect `docs/HOS_RULES.md`.
 
-Acceptance: all rule invariants hold in tests, no driving violates any limit,
-and the scheduler is pure/deterministic for a fixed input.
+Acceptance: `POST /api/trips/plan/` returns the full contract for a mocked
+route, validation and provider errors use the canonical schema, and all tests
+pass without a live key.

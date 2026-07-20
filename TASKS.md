@@ -31,14 +31,14 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 3 — Pure HOS engine
 
-- [ ] Define timeline event and scheduler-state types
-- [ ] Implement pickup/drop-off events and route consumption
-- [ ] Implement the 11-hour driving limit and 10-hour reset
-- [ ] Implement the elapsed 14-hour driving window
-- [ ] Implement the cumulative 8-hour/30-minute break rule
-- [ ] Implement the conservative 70-hour cycle bucket and 34-hour restart
-- [ ] Implement 900-mile fuel planning and qualifying-break behavior
-- [ ] Add unit tests for every required edge case in the master specification
+- [x] Define timeline event and scheduler-state types
+- [x] Implement pickup/drop-off events and route consumption
+- [x] Implement the 11-hour driving limit and 10-hour reset
+- [x] Implement the elapsed 14-hour driving window
+- [x] Implement the cumulative 8-hour/30-minute break rule
+- [x] Implement the conservative 70-hour cycle bucket and 34-hour restart
+- [x] Implement 900-mile fuel planning and qualifying-break behavior
+- [x] Add unit tests for every required edge case in the master specification
 
 ## Phase 4 — Trip API and route progress
 

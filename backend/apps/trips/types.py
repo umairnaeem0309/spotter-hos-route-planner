@@ -96,6 +96,22 @@ class Route:
         return tuple(steps)
 
 
+@dataclass(frozen=True)
+class DrivingLeg:
+    """One stretch of route driving, plus the operational event at its end.
+
+    The scheduler is deliberately provider-agnostic: it consumes these legs
+    rather than a ``Route``. Phase 4 converts a routing-provider ``Route`` into
+    legs (leg 0 = current->pickup ending in PICKUP, leg 1 = pickup->drop-off
+    ending in DROPOFF). ``end_event`` is ``PICKUP``, ``DROPOFF``, or ``None``.
+    """
+
+    distance_miles: float
+    duration_minutes: int
+    end_event: EventType | None = None
+    end_label: str = ""
+
+
 @dataclass
 class TimelineEvent:
     """A single scheduled activity on the compliant trip timeline."""
