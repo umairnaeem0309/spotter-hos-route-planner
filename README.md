@@ -63,7 +63,7 @@ Django + DRF
 - HOS scheduling and daily-log building are **pure, deterministic, unit-tested**
   services with no HTTP/ORM/wall-clock dependency.
 
-See `docs/ARCHITECTURE.md`, `docs/HOS_RULES.md`, and `DECISIONS.md`.
+See `docs/ARCHITECTURE.md`, `docs/HOS_RULES.md`, and `docs/DECISIONS.md`.
 
 ## Technology choices
 
