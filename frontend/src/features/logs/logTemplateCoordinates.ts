@@ -44,38 +44,36 @@ export const GRID = {
   totalsX: 490,
 } as const;
 
-/** Header/identity text fields. */
+/**
+ * Header/identity text fields — calibrated from the template's fill-in lines:
+ * date blanks at y=19 (centers x=187/229/271), From/To lines at y=47, the two
+ * mileage boxes, and the carrier/office/terminal lines at y=79/99/120.
+ */
 export const FIELDS = {
-  dateMonth: { x: 300, y: 20 },
-  dateDay: { x: 344, y: 20 },
-  dateYear: { x: 392, y: 20 },
-  from: { x: 92, y: 43 },
-  to: { x: 278, y: 55 },
-  totalMilesDriving: { x: 62, y: 86 },
-  totalMileage: { x: 165, y: 86 },
-  carrier: { x: 300, y: 88 },
-  mainOffice: { x: 300, y: 106 },
-  truckTrailer: { x: 60, y: 123 },
-  homeTerminal: { x: 300, y: 123 },
-  driverName: { x: 92, y: 33 },
+  dateMonth: { x: 187, y: 17 },
+  dateDay: { x: 229, y: 17 },
+  dateYear: { x: 271, y: 17 },
+  from: { x: 95, y: 45 },
+  to: { x: 278, y: 45 },
+  totalMilesDriving: { x: 66, y: 80 },
+  totalMileage: { x: 150, y: 80 },
+  carrier: { x: 347, y: 77 },
+  mainOffice: { x: 347, y: 97 },
+  truckTrailer: { x: 56, y: 112 },
+  homeTerminal: { x: 347, y: 118 },
+  driverName: { x: 130, y: 36 },
 } as const;
 
 export const REMARKS = {
-  x: 46,
-  startY: 292,
-  lineHeight: 9,
-  maxLines: 10,
+  x: 150,
+  startY: 300,
+  lineHeight: 11,
+  maxLines: 8,
   fontSize: 6.5,
 } as const;
 
 export const SHIPPING = {
-  documents: { x: 95, y: 332 },
-} as const;
-
-/** Recap (bottom section) — modeled 70-hour values. */
-export const RECAP = {
-  onDutyToday: { x: 118, y: 452 },
-  availableTomorrow: { x: 300, y: 470 },
+  documents: { x: 48, y: 351 },
 } as const;
 
 /**
