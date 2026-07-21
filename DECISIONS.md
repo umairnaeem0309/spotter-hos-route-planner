@@ -71,11 +71,3 @@
 **Decision:** The initial `POST /api/trips/plan/` implementation will calculate and return a plan without requiring a database-backed trip model. A response UUID may identify the calculation.
 
 **Reason:** Persistence is not required by the assessment and would consume time without improving the core demonstration.
-
-## ADR-010: Canonical reference paths
-
-**Status:** Accepted
-
-**Decision:** Normalize supplied assets to the filenames used by the master specification: `fmcsa-hos-driver-guide.pdf`, `fmcsa-toc.png`, and `blank-paper-log.png`.
-
-**Reason:** Stable canonical paths prevent documentation/code drift and asset lookup failures.
