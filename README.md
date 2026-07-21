@@ -17,11 +17,17 @@ rest), and generates a completed driver daily-log sheet for every calendar day.
 
 ## Screenshots
 
-_Add screenshots after deployment:_
+**Trip form, summary metrics, and route map**
 
-- `docs/screenshots/planner.png` — form + summary + map
-- `docs/screenshots/timeline.png` — HOS timeline
-- `docs/screenshots/daily-log.png` — daily-log sheet
+![Trip form, summary metrics, and route map](docs/screenshots/planner.png)
+
+**HOS-compliant timeline**
+
+![HOS-compliant timeline](docs/screenshots/timeline.png)
+
+**Driver daily-log sheet**
+
+![Driver daily-log sheet](docs/screenshots/daily-log.png)
 
 ## Overview
 
