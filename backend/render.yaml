@@ -1,0 +1,35 @@
+# Render Blueprint for the Django backend.
+# Deploy: create a new Blueprint from the repo with root directory `backend`.
+# Set the `sync: false` variables (and confirm the generated secret) in the
+# Render dashboard before the first deploy.
+services:
+  - type: web
+    name: hos-route-planner-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    # Build: install deps, collect static (whitenoise manifest), run migrations.
+    # These run under the development settings default from manage.py, so no
+    # production secret is required at build time.
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate --noinput"
+    # Runtime uses production settings (config/wsgi.py defaults to it).
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT"
+    healthCheckPath: /api/health/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.9"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      # Comma-separated. Set to the Render service host, e.g. hos-api.onrender.com
+      - key: ALLOWED_HOSTS
+        sync: false
+      # The deployed frontend origin, e.g. https://your-app.vercel.app
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      # OpenRouteService key — required for live routing/geocoding.
+      - key: ORS_API_KEY
+        sync: false

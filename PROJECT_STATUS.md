@@ -1,14 +1,16 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/daily-log-ui` (Phase 7), stacked on the Phase 1-6
+Current branch: `feature/quality-delivery` (Phase 8), stacked on the Phase 1-7
 branches, all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 7 — daily-log SVG UI (complete). Only Phase 8 remains (QA, deployment
-config, docs, screenshots, Loom).
+Phase 8 — quality and delivery. All automatable work is complete; the remaining
+items (live acceptance trips A-D, actual deployment, screenshots, final links,
+and the Loom recording) are blocked on a live `ORS_API_KEY` and hosting
+accounts, which must come from the user.
 
 ## Completed
 
@@ -91,14 +93,26 @@ config, docs, screenshots, Loom).
   - Wired into the results view. Tests: `logTemplateCoordinates.test.ts`,
     `DailyLogs.test.tsx` (10 more; 18 frontend total).
   - Overlay alignment verified by compositing the graph over the template.
+- Phase 8 quality and delivery (automatable parts):
+  - `backend/render.yaml` (Render Blueprint) and `frontend/vercel.json`.
+  - Rewrote root `README.md` to all required sections (incl. the conservative
+    70-hour explanation and limitations).
+  - Added `docs/LOOM_SCRIPT.md` and `docs/TEST_CASES.md`.
+  - Full QA gate green: backend 85 tests + `check --deploy` clean; frontend
+    18 tests + `tsc --noEmit` clean + `npm run build` succeeds.
+  - Secret scan: no `.env`/keys committed; no `ORS_API_KEY` in `frontend/src`.
 
 ## In progress
 
-- None. Phase 7 acceptance met; awaiting Phase 8.
+- None automatable. Phase 8 remaining items are blocked on user-provided
+  credentials (see below).
 
-## Not started
+## Not started (blocked on user)
 
-- QA, deployment config, screenshots, Loom (Phase 8)
+- Manual acceptance trips A-D against a live route (needs `ORS_API_KEY`).
+- Actual deployment to Render + Vercel (needs accounts/credentials + key).
+- Screenshots, final hosted/Loom links in the README.
+- The 3-5 minute Loom recording.
 - Daily-log backend (Phase 5)
 - React application and features (Phases 6–7)
 - Automated frontend tests, production builds, deployment, and Loom (Phase 8)
@@ -129,23 +143,17 @@ config, docs, screenshots, Loom).
 
 ## Exact next task
 
-Begin Phase 8 — quality and delivery:
+All autonomous work is complete. The remaining tasks need the user:
 
-- Deployment config: `backend/render.yaml` (or equivalent) — build installs
-  requirements + runs migrations + collectstatic; start with Gunicorn on
-  `config.wsgi`. Frontend Vercel config (root `frontend`, build `npm run build`,
-  output `dist`, `VITE_API_BASE_URL`). Document the production env vars.
-- Rewrite the root `README.md` to the spec's required sections (overview,
-  screenshots placeholders, architecture, setup, env vars, API example/overview,
-  HOS rules, assumptions, the conservative-70h explanation, limitations, test
-  commands, deployment, and link placeholders).
-- Add `docs/LOOM_SCRIPT.md` and `docs/TEST_CASES.md`.
-- Run the full backend suite and the frontend test + typecheck + build.
-- Manual acceptance A-D: needs a live `ORS_API_KEY` in `backend/.env` and both
-  servers running. Blocked until the user provides a key; document the steps so
-  they can run them, and note it in "Known blockers".
-- Optional: code-split MapLibre to shrink the initial bundle.
+1. Obtain a free OpenRouteService key (openrouteservice.org/dev) and put it in
+   `backend/.env` as `ORS_API_KEY`. Then run trips A-D (samples in the form) to
+   confirm live routing, per `docs/TEST_CASES.md`.
+2. Deploy: create the Render service from `backend/render.yaml` (set
+   `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `FRONTEND_URL`, `ORS_API_KEY`) and
+   the Vercel project (root `frontend`, set `VITE_API_BASE_URL`).
+3. Capture screenshots into `docs/screenshots/`, fill the hosted/Loom links in
+   `README.md`, and record the Loom using `docs/LOOM_SCRIPT.md`.
 
-Acceptance: deployment files present, README + docs complete, all automated
-tests/build green. Live acceptance trips + deployment + Loom recording require
-the ORS key and hosting credentials from the user.
+Optional engineering follow-up: code-split MapLibre (`React.lazy` on `RouteMap`)
+to shrink the initial JS bundle; open the stacked feature-branch PRs once `gh`
+is authenticated.

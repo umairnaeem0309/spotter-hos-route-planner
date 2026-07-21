@@ -74,10 +74,12 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 8 — Quality and delivery
 
-- [ ] Run all backend tests
-- [ ] Run frontend tests, type checking, linting, and production build
-- [ ] Complete manual acceptance trips A–D
-- [ ] Verify no secret appears in tracked files or browser code
-- [ ] Add deployment configuration and deploy backend/frontend
-- [ ] Add screenshots, final links, test cases, and Loom script
-- [ ] Record a 3–5 minute Loom walkthrough
+- [x] Run all backend tests (85 passed)
+- [x] Run frontend tests, type checking, and production build (18 passed; tsc clean; build ok)
+- [ ] Complete manual acceptance trips A–D — BLOCKED: needs a live `ORS_API_KEY`
+- [x] Verify no secret appears in tracked files or browser code
+- [x] Add deployment configuration (`backend/render.yaml`, `frontend/vercel.json`)
+- [ ] Deploy backend/frontend — BLOCKED: needs Render/Vercel accounts + ORS key
+- [x] Add test cases (`docs/TEST_CASES.md`) and Loom script (`docs/LOOM_SCRIPT.md`)
+- [ ] Add screenshots and final hosted/Loom links — BLOCKED: needs deploy + recording
+- [ ] Record a 3–5 minute Loom walkthrough — BLOCKED: manual recording
