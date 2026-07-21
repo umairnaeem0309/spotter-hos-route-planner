@@ -2,8 +2,7 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/frontend-foundation` (Phase 6, stacked on the Phase 1-5
-branches)
+Branch: `feature/daily-log-ui` (Phase 7, stacked on the Phase 1-6 branches)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -47,6 +46,12 @@ Baseline commit: `6818803`
   summary cards, OpenFreeMap map with markers/legend, timeline,
   route-instructions accordion, assumptions/warnings panel, results page.
   Vitest+RTL (8 tests). Type-check clean; production build succeeds.
+- Phase 7 — daily-log SVG UI (`frontend/src/features/logs/`):
+  pixel-calibrated `logTemplateCoordinates.ts`, `DailyLogSheet.tsx` (SVG
+  overlay + continuous duty polyline + fields/totals/remarks/recap + dev
+  calibration grid), `DailyLogs.tsx` (tabs/prev-next + print CSS). Wired into
+  results. 10 more tests (18 frontend total). Overlay alignment verified by
+  compositing over the template PNG.
 
 ## Files changed
 
@@ -103,15 +108,14 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": begin Phase 7 — the daily-log SVG UI
-under `frontend/src/features/logs/` (`logTemplateCoordinates.ts` +
-`DailyLogSheet.tsx`): SVG overlay on `blank-paper-log.png`, continuous 24-hour
-duty-status graph, fields/totals/remarks, multi-log navigation, print CSS, and a
-dev-only calibration grid. Wire `daily_logs` into the results view. Add
-positioning + navigation tests.
+See `PROJECT_STATUS.md` "Exact next task": begin Phase 8 — deployment config
+(`render.yaml`, Vercel settings), rewrite `README.md` to the required sections,
+add `docs/LOOM_SCRIPT.md` and `docs/TEST_CASES.md`, and run all
+tests/typecheck/build. Live acceptance trips A-D, deployment, and the Loom
+recording need a live `ORS_API_KEY` and hosting credentials from the user.
 
 ## Acceptance criteria for next task
 
-- Log sheets render on the supplied template with an aligned duty-status graph.
-- Multiple days navigate; printing yields one sheet per page.
-- Minute-to-x positioning and navigation tests pass.
+- Deployment files present; README + docs complete.
+- Full backend suite + frontend test/typecheck/build all green.
+- Live acceptance/deploy/Loom steps documented (blocked on the ORS key).

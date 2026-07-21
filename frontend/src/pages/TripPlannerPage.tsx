@@ -5,6 +5,7 @@ import { planTrip, type TripPlanRequest } from "../api/trips";
 import { ErrorState } from "../components/ErrorState";
 import { EmptyState, LoadingState } from "../components/LoadingState";
 import { AssumptionsPanel } from "../features/assumptions/AssumptionsPanel";
+import { DailyLogs } from "../features/logs/DailyLogs";
 import { RouteMap } from "../features/map/RouteMap";
 import { RouteInstructions } from "../features/route-instructions/RouteInstructions";
 import { SummaryCards } from "../features/summary/SummaryCards";
@@ -103,6 +104,7 @@ function Results({ plan }: { plan: TripPlan }) {
       <SummaryCards summary={plan.summary} />
       <RouteMap route={plan.route} timeline={plan.timeline} />
       <Timeline events={plan.timeline} />
+      <DailyLogs logs={plan.daily_logs} />
       <RouteInstructions instructions={plan.route.instructions} />
       <AssumptionsPanel assumptions={plan.assumptions} warnings={plan.warnings} />
     </>
