@@ -10,8 +10,8 @@ rest), and generates a completed driver daily-log sheet for every calendar day.
 
 ## Links
 
-- Hosted frontend: _`<add Vercel URL>`_
-- Backend API: _`<add Render URL>`_ (health: `/api/health/`)
+- Hosted frontend: https://spotter-hos-route-planner.vercel.app
+- Backend API: https://hos-route-planner-api.onrender.com (health: `/api/health/`)
 - Loom walkthrough: _`<add Loom URL>`_
 - Repository: https://github.com/umairnaeem0309/spotter-hos-route-planner
 
