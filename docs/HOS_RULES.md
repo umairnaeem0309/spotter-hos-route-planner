@@ -2,12 +2,9 @@
 
 ## Status and source
 
-This document is the implementation contract for the assessment’s Hours of Service model. It summarizes:
+This document is the implementation contract for the assessment’s Hours of Service model. It summarizes the property-carrier HOS rules as implemented by this application, based on the FMCSA *Interstate Truck Driver’s Guide to Hours of Service for Property Carriers* (April 2022 guidance).
 
-- `docs/MASTER_IMPLEMENTATION_SPEC.md`
-- The April 2022 FMCSA *Interstate Truck Driver’s Guide to Hours of Service for Property Carriers*, especially pages 5–11 and 15–19
-
-The FMCSA guide states that it is guidance and not a substitute for the regulations. This application is an assessment/demo planner, not a certified ELD or legal-compliance product.
+That FMCSA guide is guidance, not a substitute for the regulations. This application is an assessment/demo planner, not a certified ELD or legal-compliance product.
 
 ## Operating assumptions
 
