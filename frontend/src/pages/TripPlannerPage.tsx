@@ -1,17 +1,23 @@
-import { useRef, useState } from "react";
+import { Suspense, lazy, useRef, useState } from "react";
 
 import { ApiError } from "../api/client";
 import { planTrip, type TripPlanRequest } from "../api/trips";
+import { BrandMark } from "../components/ui/Icon";
 import { ErrorState } from "../components/ErrorState";
 import { EmptyState, LoadingState } from "../components/LoadingState";
 import { AssumptionsPanel } from "../features/assumptions/AssumptionsPanel";
 import { DailyLogs } from "../features/logs/DailyLogs";
-import { RouteMap } from "../features/map/RouteMap";
 import { RouteInstructions } from "../features/route-instructions/RouteInstructions";
 import { SummaryCards } from "../features/summary/SummaryCards";
 import { Timeline } from "../features/timeline/Timeline";
 import { TripForm } from "../features/trip-form/TripForm";
 import type { TripPlan } from "../types/trip";
+
+// MapLibre is large; load it only when results exist so it stays out of the
+// initial bundle.
+const RouteMap = lazy(() =>
+  import("../features/map/RouteMap").then((m) => ({ default: m.RouteMap })),
+);
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -54,13 +60,16 @@ export function TripPlannerPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 lg:py-8">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-navy-800 lg:text-3xl">
-          HOS Route Planner
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Property-Carrying Driver Trip &amp; ELD Log Planner
-        </p>
+      <header className="mb-6 flex items-center gap-3 border-b border-slate-200 pb-5">
+        <BrandMark size={40} />
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-800 lg:text-3xl">
+            HOS Route Planner
+          </h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            Property-Carrying Driver Trip &amp; ELD Log Planner
+          </p>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(320px,380px)_1fr]">
@@ -100,13 +109,19 @@ function errorTitle(error: ApiError): string {
 
 function Results({ plan }: { plan: TripPlan }) {
   return (
-    <>
+    <div className="animate-fade-in-up space-y-6">
       <SummaryCards summary={plan.summary} />
-      <RouteMap route={plan.route} timeline={plan.timeline} />
+      <Suspense
+        fallback={
+          <div className="h-[440px] w-full animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
+        }
+      >
+        <RouteMap route={plan.route} timeline={plan.timeline} />
+      </Suspense>
       <Timeline events={plan.timeline} />
       <DailyLogs logs={plan.daily_logs} />
       <RouteInstructions instructions={plan.route.instructions} />
       <AssumptionsPanel assumptions={plan.assumptions} warnings={plan.warnings} />
-    </>
+    </div>
   );
 }

@@ -97,7 +97,7 @@ export function RouteMap({ route, timeline }: RouteMapProps) {
         .filter((e) => STOP_TYPES.includes(e.type) && e.coordinate)
         .forEach((e) => {
           const display = EVENT_DISPLAY[e.type];
-          new maplibregl.Marker({ element: markerEl(display.color, display.icon) })
+          new maplibregl.Marker({ element: markerEl(display.color, display.glyph) })
             .setLngLat(e.coordinate as [number, number])
             .setPopup(
               new maplibregl.Popup({ offset: 18 }).setText(

@@ -45,21 +45,22 @@ export function formatDate(iso: string): string {
 
 export interface EventDisplay {
   label: string;
-  /** Tailwind classes for a colored chip/marker. */
+  /** Tailwind classes for a colored chip. */
   chip: string;
   /** Hex color for map markers / graph. */
   color: string;
-  icon: string;
+  /** Single-character glyph for compact map markers. */
+  glyph: string;
 }
 
 export const EVENT_DISPLAY: Record<EventType, EventDisplay> = {
-  driving: { label: "Driving", chip: "bg-teal-100 text-teal-800", color: "#0d9488", icon: "🚚" },
-  pickup: { label: "Pickup", chip: "bg-emerald-100 text-emerald-800", color: "#059669", icon: "📦" },
-  dropoff: { label: "Drop-off", chip: "bg-blue-100 text-blue-800", color: "#2563eb", icon: "🏁" },
-  fuel: { label: "Fuel stop", chip: "bg-amber-100 text-amber-800", color: "#d97706", icon: "⛽" },
-  rest_break: { label: "30-min break", chip: "bg-slate-200 text-slate-700", color: "#64748b", icon: "☕" },
-  sleeper_berth: { label: "Sleeper berth", chip: "bg-indigo-100 text-indigo-800", color: "#4f46e5", icon: "🛏️" },
-  cycle_restart: { label: "34-hour restart", chip: "bg-rose-100 text-rose-800", color: "#e11d48", icon: "🔄" },
+  driving: { label: "Driving", chip: "bg-teal-100 text-teal-800", color: "#0d9488", glyph: "▶" },
+  pickup: { label: "Pickup", chip: "bg-emerald-100 text-emerald-800", color: "#059669", glyph: "P" },
+  dropoff: { label: "Drop-off", chip: "bg-blue-100 text-blue-800", color: "#2563eb", glyph: "D" },
+  fuel: { label: "Fuel stop", chip: "bg-amber-100 text-amber-800", color: "#d97706", glyph: "F" },
+  rest_break: { label: "30-min break", chip: "bg-slate-200 text-slate-700", color: "#64748b", glyph: "B" },
+  sleeper_berth: { label: "Sleeper berth", chip: "bg-indigo-100 text-indigo-800", color: "#4f46e5", glyph: "S" },
+  cycle_restart: { label: "34-hour restart", chip: "bg-rose-100 text-rose-800", color: "#e11d48", glyph: "R" },
 };
 
 export const DUTY_STATUS_LABEL: Record<DutyStatus, string> = {
