@@ -40,17 +40,20 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
   ];
 
   const counts = [
-    { label: "Fuel stops", value: summary.fuel_stop_count },
-    { label: "30-min breaks", value: summary.rest_break_count },
-    { label: "Sleeper rests", value: summary.overnight_rest_count },
-    { label: "34-hr restarts", value: summary.cycle_restart_count },
+    { label: "Fuel stops", value: summary.fuel_stop_count, dot: "#d97706" },
+    { label: "30-min breaks", value: summary.rest_break_count, dot: "#64748b" },
+    { label: "Sleeper rests", value: summary.overnight_rest_count, dot: "#4f46e5" },
+    { label: "34-hr restarts", value: summary.cycle_restart_count, dot: "#e11d48" },
   ];
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {metrics.map((m) => (
-          <Card key={m.label} className="p-4">
+          <Card
+            key={m.label}
+            className="p-4 transition duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          >
             <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
               {m.label}
             </p>
@@ -71,10 +74,16 @@ export function SummaryCards({ summary }: SummaryCardsProps) {
         {counts.map((c) => (
           <span
             key={c.label}
-            className="inline-flex items-center gap-1.5 rounded-full bg-navy-50 px-3 py-1 text-xs font-medium text-navy-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600"
           >
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: c.dot }}
+            />
             {c.label}
-            <span className="rounded-full bg-navy-700 px-1.5 text-white">{c.value}</span>
+            <span className="ml-0.5 rounded-full bg-slate-100 px-1.5 font-semibold text-slate-700">
+              {c.value}
+            </span>
           </span>
         ))}
       </div>

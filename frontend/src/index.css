@@ -13,8 +13,11 @@ body,
 }
 
 body {
-  @apply bg-slate-100 text-slate-800 antialiased;
+  @apply font-sans text-slate-800 antialiased;
   margin: 0;
+  /* Subtle, calm background so the white cards read as elevated surfaces. */
+  background: linear-gradient(180deg, #eef2f7 0%, #f1f5f9 40%, #f8fafc 100%);
+  background-attachment: fixed;
 }
 
 /* MapLibre styles are imported in the map component. Keep the canvas crisp. */

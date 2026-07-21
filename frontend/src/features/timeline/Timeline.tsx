@@ -1,5 +1,6 @@
 import type { TimelineEvent } from "../../types/trip";
 import { Section } from "../../components/ui/Card";
+import { EventIcon } from "../../components/ui/Icon";
 import {
   EVENT_DISPLAY,
   REASON_TEXT,
@@ -26,14 +27,13 @@ export function Timeline({ events }: TimelineProps) {
           return (
             <li
               key={index}
-              className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3"
+              className="flex gap-3 rounded-lg border border-slate-100 bg-slate-50/60 p-3 transition-colors hover:bg-slate-50"
             >
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-lg"
-                style={{ backgroundColor: `${display.color}1a` }}
-                aria-hidden
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                style={{ backgroundColor: `${display.color}1a`, color: display.color }}
               >
-                {display.icon}
+                <EventIcon type={event.type} size={18} />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
