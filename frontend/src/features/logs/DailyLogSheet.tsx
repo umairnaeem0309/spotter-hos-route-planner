@@ -3,7 +3,6 @@ import { formatDate } from "../../lib/format";
 import {
   FIELDS,
   GRID,
-  RECAP,
   REMARKS,
   SHIPPING,
   TEMPLATE,
@@ -129,16 +128,6 @@ export function DailyLogSheet({ log, showCalibration = false }: DailyLogSheetPro
             {r.time} — {r.location} — {r.activity}
           </text>
         ))}
-      </g>
-
-      {/* Modeled recap */}
-      <g fill="#111827" fontSize={6.5}>
-        <text x={RECAP.onDutyToday.x} y={RECAP.onDutyToday.y}>
-          {hoursMinutes(log.recap.on_duty_minutes_today)}
-        </text>
-        <text x={RECAP.availableTomorrow.x} y={RECAP.availableTomorrow.y}>
-          {log.recap.cycle_hours_available.toFixed(1)} h available
-        </text>
       </g>
 
       {showCalibration && <CalibrationGrid />}

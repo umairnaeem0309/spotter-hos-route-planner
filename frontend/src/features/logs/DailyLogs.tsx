@@ -143,7 +143,13 @@ function LogPanel({
           ),
         )}
       </dl>
-      <p className="mt-2 text-xs text-slate-400">
+      <p className="mt-2 text-xs text-slate-500">
+        <span className="font-medium text-slate-600">Modeled 70-hour recap:</span>{" "}
+        on duty today {(log.recap.on_duty_minutes_today / 60).toFixed(1)} h ·
+        cycle used {(log.recap.cycle_used_minutes_end_of_day / 60).toFixed(1)} h ·
+        available {log.recap.cycle_hours_available.toFixed(1)} h.
+      </p>
+      <p className="mt-1 text-xs text-slate-400">
         Driver, carrier, vehicle, and shipping values are demo metadata (the
         assessment does not collect these fields).
       </p>
