@@ -66,11 +66,11 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 7 — Daily-log UI
 
-- [ ] Create centralized template coordinate configuration
-- [ ] Overlay a continuous SVG status graph on `blank-paper-log.png`
-- [ ] Render fields, status totals, remarks, and demo metadata disclosure
-- [ ] Add multi-log navigation, development calibration mode, and print CSS
-- [ ] Add position-calculation and navigation tests
+- [x] Create centralized template coordinate configuration
+- [x] Overlay a continuous SVG status graph on `blank-paper-log.png`
+- [x] Render fields, status totals, remarks, and demo metadata disclosure
+- [x] Add multi-log navigation, development calibration mode, and print CSS
+- [x] Add position-calculation and navigation tests
 
 ## Phase 8 — Quality and delivery
 

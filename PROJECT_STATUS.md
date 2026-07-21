@@ -1,14 +1,14 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/frontend-foundation` (Phase 6), stacked on the
-Phase 1-5 branches, all pushed.
+Current branch: `feature/daily-log-ui` (Phase 7), stacked on the Phase 1-6
+branches, all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 6 — frontend foundation and features (complete). Ready to begin Phase 7
-(daily-log SVG UI).
+Phase 7 — daily-log SVG UI (complete). Only Phase 8 remains (QA, deployment
+config, docs, screenshots, Loom).
 
 ## Completed
 
@@ -79,14 +79,26 @@ Phase 6 — frontend foundation and features (complete). Ready to begin Phase 7
   - Vitest + RTL: `TripForm.test.tsx`, `TripPlannerPage.test.tsx` (8 tests).
   - Type-check clean; production build succeeds.
 
+- Phase 7 daily-log SVG UI (`frontend/src/features/logs/`):
+  - `logTemplateCoordinates.ts`: centralized, pixel-calibrated coordinates
+    (24-hour grid x=80..470, rows at y=191/209/226/244) + `minuteToX`.
+  - `DailyLogSheet.tsx`: SVG overlay on `blank-paper-log.png` with a continuous
+    24-hour duty-status polyline, per-row totals, header/identity fields,
+    remarks, modeled recap, demo-metadata disclosure, and a dev calibration
+    grid.
+  - `DailyLogs.tsx`: multi-day tabs + prev/next, "Print logs" with one-sheet-
+    per-page print CSS, dev-only calibration toggle, accessible totals table.
+  - Wired into the results view. Tests: `logTemplateCoordinates.test.ts`,
+    `DailyLogs.test.tsx` (10 more; 18 frontend total).
+  - Overlay alignment verified by compositing the graph over the template.
+
 ## In progress
 
-- None. Phase 6 acceptance met; awaiting Phase 7.
+- None. Phase 7 acceptance met; awaiting Phase 8.
 
 ## Not started
 
-- Daily-log UI / SVG overlay (Phase 7)
-- QA, deployment, screenshots, Loom (Phase 8)
+- QA, deployment config, screenshots, Loom (Phase 8)
 - Daily-log backend (Phase 5)
 - React application and features (Phases 6–7)
 - Automated frontend tests, production builds, deployment, and Loom (Phase 8)
@@ -100,8 +112,8 @@ Phase 6 — frontend foundation and features (complete). Ready to begin Phase 7
   `ALLOWED_HOSTS`.
 - `pytest`: 85 passed (health, config safety, error schema, provider layer,
   full HOS engine, route progress, trip-plan API, and daily-log builder).
-- Frontend `tsc --noEmit`: clean. `vitest run`: 8 passed. `npm run build`:
-  succeeds (bundle ~272 kB gzip, maplibre-dominated; noted for Phase 8).
+- Frontend `tsc --noEmit`: clean. `vitest run`: 18 passed. `npm run build`:
+  succeeds (bundle ~274 kB gzip, maplibre-dominated; noted for Phase 8).
 - Live boot: dev server started; `GET /api/health/` returned HTTP 200 and
   `{"status": "ok"}` with security headers.
 - Secret scan: no `.env` or credentials committed; `.venv/`, `db.sqlite3`,
@@ -117,25 +129,23 @@ Phase 6 — frontend foundation and features (complete). Ready to begin Phase 7
 
 ## Exact next task
 
-Begin Phase 7 — daily-log SVG UI (`frontend/src/features/logs/`):
+Begin Phase 8 — quality and delivery:
 
-- `logTemplateCoordinates.ts`: centralized x/y coordinates for the blank log
-  template (grid start/end X, the four duty-status row Y positions, field
-  positions). No scattered pixel constants elsewhere.
-- `DailyLogSheet.tsx`: SVG `viewBox` with `/assets/blank-paper-log.png` as an
-  `<image>` background. Draw a continuous 24-hour duty-status polyline
-  (time-to-x: `gridStartX + (minutesFromMidnight/1440)*(gridEndX-gridStartX)`),
-  horizontal status runs + vertical connectors, status totals on the right,
-  fields (date, from/to, miles, demo driver/carrier/office/vehicle/shipping),
-  and remarks beneath. Disclose demo metadata.
-- Multi-log navigation (tabs or prev/next), a "Print logs" action with print
-  CSS (one sheet per page), and a dev-only calibration grid toggle.
-- Wire `daily_logs` from the plan into the results view.
-- Tests: minute-to-x positioning for a known segment, and multi-log navigation.
+- Deployment config: `backend/render.yaml` (or equivalent) — build installs
+  requirements + runs migrations + collectstatic; start with Gunicorn on
+  `config.wsgi`. Frontend Vercel config (root `frontend`, build `npm run build`,
+  output `dist`, `VITE_API_BASE_URL`). Document the production env vars.
+- Rewrite the root `README.md` to the spec's required sections (overview,
+  screenshots placeholders, architecture, setup, env vars, API example/overview,
+  HOS rules, assumptions, the conservative-70h explanation, limitations, test
+  commands, deployment, and link placeholders).
+- Add `docs/LOOM_SCRIPT.md` and `docs/TEST_CASES.md`.
+- Run the full backend suite and the frontend test + typecheck + build.
+- Manual acceptance A-D: needs a live `ORS_API_KEY` in `backend/.env` and both
+  servers running. Blocked until the user provides a key; document the steps so
+  they can run them, and note it in "Known blockers".
+- Optional: code-split MapLibre to shrink the initial bundle.
 
-Note: verify the SVG overlay visually aligns to the supplied
-`blank-paper-log.png` (518x518 assumed; confirm actual dimensions and set the
-viewBox/coordinates accordingly).
-
-Acceptance: log sheets render on the template, the graph aligns to the grid,
-multiple days navigate, printing yields one sheet per page, and tests pass.
+Acceptance: deployment files present, README + docs complete, all automated
+tests/build green. Live acceptance trips + deployment + Loom recording require
+the ORS key and hosting credentials from the user.
