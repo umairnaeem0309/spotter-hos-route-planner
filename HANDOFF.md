@@ -2,7 +2,8 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/daily-logs` (Phase 5, stacked on the Phase 1-4 branches)
+Branch: `feature/frontend-foundation` (Phase 6, stacked on the Phase 1-5
+branches)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -41,6 +42,11 @@ Baseline commit: `6818803`
   - `tests/test_daily_logs.py` (10 tests).
 - Verified dev/deploy checks and ran the full suite (85 passed). Backend
   (Phases 1-5) is functionally complete.
+- Phase 6 — React frontend (`frontend/`): Vite + TS + Tailwind + MapLibre.
+  Typed stale-safe API client, trip form + validation + states + samples,
+  summary cards, OpenFreeMap map with markers/legend, timeline,
+  route-instructions accordion, assumptions/warnings panel, results page.
+  Vitest+RTL (8 tests). Type-check clean; production build succeeds.
 
 ## Files changed
 
@@ -97,14 +103,15 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": begin Phase 6 — the React frontend
-(Vite + TS + Tailwind) under `frontend/`: typed API client (stale-safe),
-trip form with validation and states, summary cards, MapLibre/OpenFreeMap map
-with markers/legend, timeline, and route instructions. Daily-log SVG overlay is
-Phase 7.
+See `PROJECT_STATUS.md` "Exact next task": begin Phase 7 — the daily-log SVG UI
+under `frontend/src/features/logs/` (`logTemplateCoordinates.ts` +
+`DailyLogSheet.tsx`): SVG overlay on `blank-paper-log.png`, continuous 24-hour
+duty-status graph, fields/totals/remarks, multi-log navigation, print CSS, and a
+dev-only calibration grid. Wire `daily_logs` into the results view. Add
+positioning + navigation tests.
 
 ## Acceptance criteria for next task
 
-- `npm run dev` serves the SPA; a plan renders summary/map/timeline/instructions.
-- Stale-request protection via AbortController; canonical error handling.
-- Type-check clean; Vitest tests (validation, success, API error) pass.
+- Log sheets render on the supplied template with an aligned duty-status graph.
+- Multiple days navigate; printing yields one sheet per page.
+- Minute-to-x positioning and navigation tests pass.

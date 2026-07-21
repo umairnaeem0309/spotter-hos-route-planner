@@ -57,12 +57,12 @@ Only mark an item complete after its acceptance checks pass.
 
 ## Phase 6 — Frontend foundation and features
 
-- [ ] Create the React/Vite/TypeScript/Tailwind application under `frontend/`
-- [ ] Add strict API types and a stale-request-safe client
-- [ ] Build the trip form, validation, empty/loading/error states, and sample trip
-- [ ] Build summary cards, MapLibre/OpenFreeMap route map, markers, and legend
-- [ ] Build timeline, stops, assumptions, warnings, and instructions UI
-- [ ] Add accessible, responsive behavior and frontend tests
+- [x] Create the React/Vite/TypeScript/Tailwind application under `frontend/`
+- [x] Add strict API types and a stale-request-safe client
+- [x] Build the trip form, validation, empty/loading/error states, and sample trip
+- [x] Build summary cards, MapLibre/OpenFreeMap route map, markers, and legend
+- [x] Build timeline, stops, assumptions, warnings, and instructions UI
+- [x] Add accessible, responsive behavior and frontend tests
 
 ## Phase 7 — Daily-log UI
 

@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-100 text-slate-800 antialiased;
+  margin: 0;
+}
+
+/* MapLibre styles are imported in the map component. Keep the canvas crisp. */
+.maplibregl-map {
+  font-family: inherit;
+}
+
+/* Print: one daily-log sheet per page (used in Phase 7). */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-page {
+    break-after: page;
+    page-break-after: always;
+  }
+}
