@@ -1,14 +1,14 @@
 # Project Status
 
 Last updated: 2026-07-21
-Current branch: `feature/daily-logs` (Phase 5), stacked on the Phase 1-4
-branches, all pushed.
+Current branch: `feature/frontend-foundation` (Phase 6), stacked on the
+Phase 1-5 branches, all pushed.
 Latest baseline commit: `6818803 Merge pull request #2 ...` (main)
 
 ## Current phase
 
-Phase 5 — daily-log backend (complete). The backend (Phases 1-5) is
-functionally complete. Ready to begin Phase 6 (frontend foundation/features).
+Phase 6 — frontend foundation and features (complete). Ready to begin Phase 7
+(daily-log SVG UI).
 
 ## Completed
 
@@ -66,13 +66,25 @@ functionally complete. Ready to begin Phase 6 (frontend foundation/features).
   - Wired into `build_trip_plan` `daily_logs`; `number_of_log_days` from the
     builder. `tests/test_daily_logs.py` (10 tests).
 
+- Phase 6 React frontend (`frontend/`, Vite + TS + Tailwind + MapLibre):
+  - Strict types (`types/trip.ts`) mirroring the API; stale-safe client
+    (`api/client.ts` with AbortController + typed `ApiError`), `api/trips.ts`.
+  - Trip form with client validation, server field-error mapping, empty/
+    loading/error states, and the three acceptance samples.
+  - Summary cards, MapLibre + OpenFreeMap map with waypoint/stop markers and a
+    legend, HOS timeline (with reason explanations), route-instructions
+    accordion, assumptions + warnings panel.
+  - `TripPlannerPage` state machine; responsive two-column layout; footer
+    disclaimer + attribution.
+  - Vitest + RTL: `TripForm.test.tsx`, `TripPlannerPage.test.tsx` (8 tests).
+  - Type-check clean; production build succeeds.
+
 ## In progress
 
-- None. Phase 5 acceptance met; backend complete; awaiting Phase 6.
+- None. Phase 6 acceptance met; awaiting Phase 7.
 
 ## Not started
 
-- React application and features (Phase 6)
 - Daily-log UI / SVG overlay (Phase 7)
 - QA, deployment, screenshots, Loom (Phase 8)
 - Daily-log backend (Phase 5)
@@ -88,6 +100,8 @@ functionally complete. Ready to begin Phase 6 (frontend foundation/features).
   `ALLOWED_HOSTS`.
 - `pytest`: 85 passed (health, config safety, error schema, provider layer,
   full HOS engine, route progress, trip-plan API, and daily-log builder).
+- Frontend `tsc --noEmit`: clean. `vitest run`: 8 passed. `npm run build`:
+  succeeds (bundle ~272 kB gzip, maplibre-dominated; noted for Phase 8).
 - Live boot: dev server started; `GET /api/health/` returned HTTP 200 and
   `{"status": "ok"}` with security headers.
 - Secret scan: no `.env` or credentials committed; `.venv/`, `db.sqlite3`,
@@ -103,27 +117,25 @@ functionally complete. Ready to begin Phase 6 (frontend foundation/features).
 
 ## Exact next task
 
-Begin Phase 6 — React frontend foundation and core features (`frontend/`):
+Begin Phase 7 — daily-log SVG UI (`frontend/src/features/logs/`):
 
-- Scaffold Vite + React + TypeScript + Tailwind under `frontend/` (feature-based
-  structure per `docs/ARCHITECTURE.md`). Add `.env.example` with
-  `VITE_API_BASE_URL`.
-- `src/types/trip.ts`: strict TypeScript types mirroring the Django response
-  contract (summary, route, timeline, daily_logs, assumptions, warnings).
-- `src/api/client.ts` + `trips.ts`: fetch wrapper with `AbortController`
-  (stale-request-safe) and typed error handling against the canonical error
-  schema.
-- `features/trip-form`: inputs (current/pickup/dropoff, cycle used, optional
-  trip start), validation, empty/loading/error states, "Load sample trip".
-- Summary metric cards, MapLibre + OpenFreeMap route map with markers/legend,
-  timeline cards (with reason explanations), stops list, and route-instructions
-  accordion. (Daily-log SVG is Phase 7.)
-- Vitest + React Testing Library setup; tests for form validation, success
-  render, and API-error render.
+- `logTemplateCoordinates.ts`: centralized x/y coordinates for the blank log
+  template (grid start/end X, the four duty-status row Y positions, field
+  positions). No scattered pixel constants elsewhere.
+- `DailyLogSheet.tsx`: SVG `viewBox` with `/assets/blank-paper-log.png` as an
+  `<image>` background. Draw a continuous 24-hour duty-status polyline
+  (time-to-x: `gridStartX + (minutesFromMidnight/1440)*(gridEndX-gridStartX)`),
+  horizontal status runs + vertical connectors, status totals on the right,
+  fields (date, from/to, miles, demo driver/carrier/office/vehicle/shipping),
+  and remarks beneath. Disclose demo metadata.
+- Multi-log navigation (tabs or prev/next), a "Print logs" action with print
+  CSS (one sheet per page), and a dev-only calibration grid toggle.
+- Wire `daily_logs` from the plan into the results view.
+- Tests: minute-to-x positioning for a known segment, and multi-log navigation.
 
-Notes: the map basemap style is `https://tiles.openfreemap.org/styles/liberty`;
-retain attribution. Do not call ORS from the browser. Navy/teal/white/neutral
-palette; responsive; accessible.
+Note: verify the SVG overlay visually aligns to the supplied
+`blank-paper-log.png` (518x518 assumed; confirm actual dimensions and set the
+viewBox/coordinates accordingly).
 
-Acceptance: `npm run dev` serves the SPA; a mocked/live plan renders summary,
-map, timeline, and instructions; type-check and the frontend tests pass.
+Acceptance: log sheets render on the template, the graph aligns to the grid,
+multiple days navigate, printing yields one sheet per page, and tests pass.
