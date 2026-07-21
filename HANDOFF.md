@@ -2,7 +2,7 @@
 
 Date: 2026-07-21
 Agent: Claude (Opus 4.8)
-Branch: `feature/daily-log-ui` (Phase 7, stacked on the Phase 1-6 branches)
+Branch: `feature/quality-delivery` (Phase 8, stacked on the Phase 1-7 branches)
 Baseline commit: `6818803`
 
 ## Work completed this session
@@ -52,6 +52,11 @@ Baseline commit: `6818803`
   calibration grid), `DailyLogs.tsx` (tabs/prev-next + print CSS). Wired into
   results. 10 more tests (18 frontend total). Overlay alignment verified by
   compositing over the template PNG.
+- Phase 8 — quality and delivery (automatable parts): `backend/render.yaml`,
+  `frontend/vercel.json`, full README rewrite, `docs/LOOM_SCRIPT.md`,
+  `docs/TEST_CASES.md`. QA gate green (backend 85 + deploy check; frontend 18 +
+  tsc + build); secret scan clean. Live acceptance/deploy/Loom blocked on the
+  user's ORS key and hosting accounts.
 
 ## Files changed
 
@@ -108,14 +113,17 @@ Copy `backend/.env.example` to `backend/.env` for local overrides (git-ignored).
 
 ## Exact next task
 
-See `PROJECT_STATUS.md` "Exact next task": begin Phase 8 — deployment config
-(`render.yaml`, Vercel settings), rewrite `README.md` to the required sections,
-add `docs/LOOM_SCRIPT.md` and `docs/TEST_CASES.md`, and run all
-tests/typecheck/build. Live acceptance trips A-D, deployment, and the Loom
-recording need a live `ORS_API_KEY` and hosting credentials from the user.
+All autonomous phases (1-8) are complete. Remaining work needs the user:
+add `ORS_API_KEY` to `backend/.env` and run acceptance trips A-D; deploy to
+Render + Vercel; capture screenshots and fill README links; record the Loom
+(script in `docs/LOOM_SCRIPT.md`). See `PROJECT_STATUS.md` "Exact next task".
+
+Optional engineering follow-up: code-split MapLibre to shrink the JS bundle;
+open the stacked feature-branch PRs once `gh` is authenticated.
 
 ## Acceptance criteria for next task
 
-- Deployment files present; README + docs complete.
-- Full backend suite + frontend test/typecheck/build all green.
-- Live acceptance/deploy/Loom steps documented (blocked on the ORS key).
+- Trips A-D behave as described in `docs/TEST_CASES.md` against a live route.
+- Deployed frontend calls the deployed API successfully (`/api/health/`,
+  `/api/trips/plan/`); CORS allows the Vercel origin.
+- README hosted/Loom links filled; Loom recorded under 5 minutes.

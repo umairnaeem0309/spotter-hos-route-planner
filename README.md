@@ -1,130 +1,128 @@
 # HOS Route Planner
 
-A time-boxed full-stack assessment that will plan a current → pickup → drop-off truck route, apply a defined property-carrying Hours of Service model, and generate one completed driver daily log for each trip calendar day.
+**Property-Carrying Driver Trip & ELD Log Planner** — a full-stack demonstration
+app that plans a truck route through *current → pickup → drop-off*, schedules a
+Hours-of-Service (HOS) compliant timeline (driving limits, breaks, fueling, and
+rest), and generates a completed driver daily-log sheet for every calendar day.
 
-> Status: repository and documentation foundation only. The Django and React applications have not been created yet.
+> **Disclaimer.** This is a time-boxed assessment/demo planner, **not** a
+> certified ELD or a legal-compliance product. See *Known limitations*.
 
-## Deliverable links
+## Links
 
-- Hosted frontend: _TBD_
-- Backend API: _TBD_
-- Loom walkthrough: _TBD_
-- GitHub repository: _TBD_
+- Hosted frontend: _`<add Vercel URL>`_
+- Backend API: _`<add Render URL>`_ (health: `/api/health/`)
+- Loom walkthrough: _`<add Loom URL>`_
+- Repository: https://github.com/umairnaeem0309/spotter-hos-route-planner
 
 ## Screenshots
 
-Screenshots will be added after the first complete UI flow is implemented.
+_Add screenshots after deployment:_
 
-## Planned user flow
+- `docs/screenshots/planner.png` — form + summary + map
+- `docs/screenshots/timeline.png` — HOS timeline
+- `docs/screenshots/daily-log.png` — daily-log sheet
 
-1. Enter current, pickup, and drop-off locations.
-2. Enter current hours used in the 70-hour/8-day cycle.
-3. Optionally select a timezone-aware trip start for reproducible results.
-4. Generate a route, compliant schedule, operational-stop map, instructions, and daily logs.
-5. Review or print one log sheet per calendar day.
+## Overview
+
+Enter a current location, pickup, drop-off, and current 70-hour-cycle usage
+(optionally a fixed trip start). The app returns:
+
+- an interactive route map with markers for the stops, fuel, breaks, sleeper
+  rests, and any 34-hour restart;
+- summary metrics (distance, raw vs. compliant duration, arrival, counts);
+- a chronological HOS-compliant schedule with plain-language reasons;
+- turn-by-turn directions; and
+- one ELD daily-log sheet per calendar day, drawn on the supplied blank
+  paper-log template.
 
 ## Architecture
 
-The monorepo will use:
-
-- **Backend:** Django, Django REST Framework, OpenRouteService clients, pure HOS services, and pytest
-- **Frontend:** React, Vite, TypeScript, Tailwind CSS, MapLibre GL JS, and Vitest/React Testing Library
-- **Map:** OpenFreeMap’s Liberty style, rendered by MapLibre with attribution
-- **Security boundary:** React calls Django; only Django calls OpenRouteService
-
-The backend will own validation, provider integration, scheduling, route progress, and daily-log data. The frontend will own interaction and visualization, including an SVG overlay on the supplied blank log image.
-
-See [Architecture](docs/ARCHITECTURE.md), [HOS rules](docs/HOS_RULES.md), and [decisions](DECISIONS.md).
-
-## Repository layout
-
-```text
-backend/                         # Django project (next phase; not initialized)
-frontend/                        # React project (not initialized)
-  public/assets/blank-paper-log.png
-docs/
-  ARCHITECTURE.md
-  HOS_RULES.md
-  MASTER_IMPLEMENTATION_SPEC.md
-  references/
-AGENTS.md
-PROJECT_CONTEXT.md
-PROJECT_STATUS.md
-TASKS.md
-DECISIONS.md
-HANDOFF.md
 ```
+React SPA (Vite + TS + Tailwind + MapLibre)
+   │  POST /api/trips/plan/
+   ▼
+Django + DRF
+   ├─ api/            validation, thin views, safe error schema
+   └─ services/       geocoding · routing · hos_scheduler · route_progress · daily_log_builder
+         │
+         ▼  OpenRouteService (HeiGIT)  — geocoding + driving-hgv routing (server-side only)
+```
+
+- **Django** owns geocoding, routing-provider calls, HOS scheduling, route
+  progress, and daily-log construction. The `ORS_API_KEY` never reaches the
+  browser and never appears in responses or logs.
+- **React** owns input, map rendering, timeline, daily-log SVG overlays,
+  printing, and all user-facing states.
+- HOS scheduling and daily-log building are **pure, deterministic, unit-tested**
+  services with no HTTP/ORM/wall-clock dependency.
+
+See `docs/ARCHITECTURE.md`, `docs/HOS_RULES.md`, and `DECISIONS.md`.
 
 ## Technology choices
 
-The stack is fixed by the assessment:
-
-- Python, Django, Django REST Framework
-- React, Vite, TypeScript, Tailwind CSS
-- MapLibre GL JS and OpenFreeMap
-- OpenRouteService `driving-hgv`, geocoding, and reverse geocoding
-- pytest; Vitest and React Testing Library
+| Area | Choice |
+| --- | --- |
+| Backend | Django 5, Django REST Framework |
+| Frontend | React 18, Vite, TypeScript, Tailwind CSS |
+| Map | MapLibre GL JS + OpenFreeMap (`liberty` style) |
+| Routing / geocoding | OpenRouteService (HeiGIT), server-side only |
+| Backend tests | pytest / pytest-django |
+| Frontend tests | Vitest + React Testing Library |
+| Serving | Gunicorn + WhiteNoise (backend), Vercel static (frontend) |
 
 ## Local setup
 
-The exact install commands and lockfiles will be added when each application is scaffolded. Do not assume the commands below work until Phase 1/Phase 6 creates the relevant files.
+Requires Python 3.12+, Node 20+, and (for live routing) a free OpenRouteService
+API key from <https://openrouteservice.org/dev/#/signup>.
 
-### Backend target workflow
+### Backend
 
-```powershell
+```bash
 cd backend
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# Windows:  .venv\Scripts\activate       (bash: source .venv/Scripts/activate)
 pip install -r requirements.txt
-Copy-Item ..\.env.example .env
-python manage.py migrate
-python manage.py runserver
+cp .env.example .env          # then edit .env (see below)
+python manage.py runserver     # http://127.0.0.1:8000/api/health/
 ```
 
-### Frontend target workflow
+`manage.py` defaults to `config.settings.development`. Automated tests use
+`config.settings.test`; production uses `config.settings.production`.
 
-```powershell
+### Frontend
+
+```bash
 cd frontend
 npm install
-npm run dev
+cp .env.example .env.local     # set VITE_API_BASE_URL if not the default
+npm run dev                    # http://localhost:5173
 ```
-
-Never place `ORS_API_KEY` in a `VITE_*` variable or frontend source.
 
 ## Environment variables
 
-Copy `.env.example` to an ignored local `.env` only after the backend exists.
+### Backend (`backend/.env`)
 
-| Variable | Consumer | Purpose |
-| --- | --- | --- |
-| `ORS_API_KEY` | Django | OpenRouteService credential |
-| `DJANGO_SECRET_KEY` | Django | Django cryptographic secret |
-| `DEBUG` | Django | Explicit development/production mode |
-| `ALLOWED_HOSTS` | Django | Comma-separated host allowlist |
-| `CORS_ALLOWED_ORIGINS` | Django | Comma-separated browser origin allowlist |
-| `FRONTEND_URL` | Django | Canonical deployed frontend URL |
-| `VITE_API_BASE_URL` | React | Public Django API base URL; never contains secrets |
+| Variable | Purpose |
+| --- | --- |
+| `DJANGO_SECRET_KEY` | Django secret. Production refuses placeholder/`django-insecure-` values. |
+| `DEBUG` | `true` locally, `false` in production. |
+| `ALLOWED_HOSTS` | Comma-separated hosts (required in production). |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated allowed frontend origins. |
+| `FRONTEND_URL` | Primary frontend origin (default CORS origin). |
+| `ORS_API_KEY` | OpenRouteService key (server-side only; never exposed). |
 
-Production must use `DEBUG=false`, a strong `DJANGO_SECRET_KEY`, exact allowed hosts/origins, and HTTPS URLs.
+### Frontend (`frontend/.env.local`)
 
-## Planned API
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_BASE_URL` | Base URL of the API incl. `/api` (e.g. `http://localhost:8000/api`). Public config, not a secret. |
 
-### Health
+## API
 
-```http
-GET /api/health/
-```
+### `POST /api/trips/plan/`
 
-```json
-{"status": "ok"}
-```
-
-### Trip plan
-
-```http
-POST /api/trips/plan/
-Content-Type: application/json
-```
+Request:
 
 ```json
 {
@@ -136,67 +134,110 @@ Content-Type: application/json
 }
 ```
 
-The response will contain normalized input, summary metrics, GeoJSON route geometry, waypoints, instructions, a chronological event timeline, daily logs, assumptions, and warnings. Field validation errors return 400; safe provider failures return 502/503.
+`trip_start` is optional (defaults to now). Validation: locations must be
+non-blank, `current_cycle_used_hours` in [0, 70], `trip_start` valid ISO-8601.
 
-## HOS rules to implement
+Response (abridged):
 
-- 11-hour driving limit after a qualifying 10-hour reset
-- 14-consecutive-hour elapsed driving window
-- 30 consecutive non-driving minutes after 8 cumulative driving hours
-- 70-hour/8-day modeled cycle limit
-- Ten-hour Sleeper Berth daily resets
-- 34-hour Off Duty modeled cycle restart when required by the conservative plan
-- Driving and On Duty, Not Driving count toward cycle usage
-- One-hour pickup and drop-off as On Duty, Not Driving
-- Thirty-minute On Duty, Not Driving fuel stops at 900-mile planning intervals
-- Full 24-hour logs using the trip-start timezone
-
-The complete implementation contract is in [docs/HOS_RULES.md](docs/HOS_RULES.md).
-
-## Important assumptions and limitation
-
-The assessment provides the total current cycle hours but not the driver's individual duty totals for the previous eight days. Therefore, the application cannot calculate exact rolling recapture hours. It uses the supplied cycle total as a conservative bucket and schedules a 34-hour restart when that bucket is exhausted.
-
-The model also excludes adverse-driving, short-haul, personal-conveyance, split-sleeper, and team-driver calculations. Generated fuel points are planned positions along the route, not claims that a real truck stop exists. All logs use the trip-start timezone.
-
-This application is an assessment/demo planner, not a certified ELD or legal-compliance product.
-
-## Daily logs
-
-The frontend must use `frontend/public/assets/blank-paper-log.png` as the visual background. A reusable SVG overlay will draw the four duty-status rows, vertical transitions, totals, known metadata, and location remarks. Each log must contain exactly 1,440 minutes with no gaps or overlaps.
-
-## Testing
-
-Planned commands after scaffolding:
-
-```powershell
-cd backend
-pytest
+```json
+{
+  "trip_id": "uuid",
+  "input": { "...": "normalized input" },
+  "summary": {
+    "total_distance_miles": 0, "raw_driving_minutes": 0,
+    "compliant_trip_minutes": 0, "departure_at": "", "arrival_at": "",
+    "number_of_log_days": 0, "fuel_stop_count": 0, "rest_break_count": 0,
+    "overnight_rest_count": 0, "cycle_restart_count": 0
+  },
+  "route": { "geometry": { "type": "LineString", "coordinates": [] },
+             "waypoints": [], "instructions": [] },
+  "timeline": [ { "type": "driving", "duty_status": "DRIVING", "start_at": "",
+                  "end_at": "", "duration_minutes": 0, "distance_miles": 0,
+                  "coordinate": [0,0], "location_label": "", "reason_code": "" } ],
+  "daily_logs": [ { "date": "", "segments": [], "totals": {}, "remarks": [] } ],
+  "assumptions": [], "warnings": []
+}
 ```
 
-```powershell
-cd frontend
-npm test -- --run
-npm run build
+Errors use one schema: `{ "error": { "code", "message", "details?" } }` —
+`400` for validation/address/no-route, `502`/`503` for provider failures.
+
+### `GET /api/health/` -> `{ "status": "ok" }`
+
+## HOS rules implemented
+
+- **11-hour driving limit** after a qualifying 10-hour rest.
+- **14-hour driving window** (elapsed wall-clock; breaks don't extend it).
+- **30-minute break** after 8 cumulative driving hours (fuel or pickup >= 30 min
+  qualifies).
+- **70-hour / 8-day cycle** (Driving + On-Duty count); driving stops at the
+  limit.
+- **10-hour reset** (sleeper) resets the daily clocks; **34-hour restart**
+  resets the modeled cycle.
+- **Fueling** planned ~every 900 route miles (30 min, On Duty, satisfies the
+  break).
+- Pickup and drop-off are **60 minutes each, On Duty (Not Driving)**.
+
+Full contract and sources: `docs/HOS_RULES.md`.
+
+## Important assumptions
+
+Property-carrying CMV, interstate, 70-hour/8-day; driver starts after 10 h off;
+single trip timezone for all logs; no adverse-driving/short-haul/personal-
+conveyance/split-sleeper/team logic. The full list is shown in-app under
+**Calculation assumptions** and lives in
+`backend/apps/trips/services/trip_planner.py`.
+
+### The conservative 70-hour calculation
+
+> The assessment provides the total current cycle hours but not the driver's
+> individual duty totals for the previous eight days. Therefore, the application
+> cannot calculate exact rolling recapture hours. It uses the supplied cycle
+> total as a conservative bucket (`available = 70 - current cycle used`) and
+> schedules a 34-hour restart when that bucket is exhausted and driving remains.
+
+## Known limitations
+
+- Not a certified ELD; no legal guarantee. Modeled cycle is conservative (above).
+- Fuel/rest coordinates are interpolated along the route and labeled as *planned*
+  points, not confirmed truck stops.
+- Reverse geocoding for generated stops is best-effort with a lat/lon fallback.
+- Single trip timezone even across timezone boundaries.
+- The frontend JS bundle is MapLibre-dominated (~270 kB gzip); could be
+  code-split for a smaller initial load.
+- Daily-log identity/carrier/vehicle/shipping values are demo metadata.
+
+## Tests
+
+```bash
+# Backend (85 tests)
+cd backend && pytest
+
+# Frontend (18 tests) + type-check + production build
+cd frontend && npm test && npm run typecheck && npm run build
 ```
 
-Tests must cover the scheduling edge cases, calendar splitting, route progress, API validation/provider failures, form states, multiple-log navigation, and known SVG positioning.
+Backend coverage includes every HOS rule and interaction, daily-log invariants
+(exactly 1,440 min/day, no gaps/overlaps, cross-midnight splits), the trip-plan
+API (mocked provider), and configuration safety. See `docs/TEST_CASES.md`.
 
-## Deployment target
+## Deployment
 
-- **Frontend:** Vercel, root `frontend`, build `npm run build`, output `dist`
-- **Backend:** Render or equivalent, root `backend`, migrations during build, Gunicorn start command
-- Configure `VITE_API_BASE_URL` to the hosted backend’s `/api` URL.
-- Add the hosted frontend origin to Django CORS settings.
-- Verify hosted `GET /api/health/` and `POST /api/trips/plan/` before delivery.
+**Backend (Render).** Blueprint at `backend/render.yaml`: root `backend`, build
+installs requirements + `collectstatic` + `migrate`, start with Gunicorn. Set
+`ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`, `FRONTEND_URL`, and `ORS_API_KEY`
+(confirm the generated `DJANGO_SECRET_KEY`).
 
-Deployment files and exact commands will be added after the applications exist.
+**Frontend (Vercel).** Root `frontend`, build `npm run build`, output `dist`
+(`frontend/vercel.json` included). Set `VITE_API_BASE_URL` to
+`https://<backend-domain>/api`. Ensure the Vercel origin is in the backend's
+`CORS_ALLOWED_ORIGINS`.
 
-## Reference material
+## Manual acceptance trips
 
-- Assessment: `docs/references/new-full-stack-dev-assessment.docx`
-- FMCSA guide: `docs/references/fmcsa-hos-driver-guide.pdf`
-- FMCSA TOC: `docs/references/fmcsa-toc.png`
-- Log template: `frontend/public/assets/blank-paper-log.png`
+Provided as one-click samples in the form (also in `docs/TEST_CASES.md`):
 
-The April 2022 FMCSA guide is guidance and explicitly says it is not a substitute for the regulations.
+- **A** Chicago -> Indianapolis -> Nashville, cycle 5 — one log day.
+- **B** New York -> Pittsburgh -> Los Angeles, cycle 10 — multiple sleepers/fuel.
+- **C** Chicago -> Milwaukee -> Dallas, cycle 69 — 34-hour restart.
+- **D** An invalid address — helpful error, no crash.
